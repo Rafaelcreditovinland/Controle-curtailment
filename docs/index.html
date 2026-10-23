@@ -497,6 +497,36 @@
 </div>
 
 <script>
+// Monthly rows rolled up to semesters and calendar years; a period is complete with 6 or 12 closed months.
+dash.calc('serie_periodo', {
+  inputs: ['serie_mensal'],
+  title: 'Histórico por mês, semestre e ano',
+  description: 'Soma os MWh mensais de cada complexo por semestre e por ano e recalcula o % cortado sobre o potencial do período.',
+  fn: (serie_mensal) => {
+    const rows = Array.isArray(serie_mensal) ? serie_mensal : (serie_mensal && (serie_mensal.rows || serie_mensal.data)) || [];
+    const acc = new Map();
+    const keys = ['potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh'];
+    rows.filter((r) => r.tipo === 'complexo').forEach((r) => {
+      const mes = String(r.mes).slice(0, 7);
+      const mo = +mes.slice(5, 7);
+      [['mensal', mes], ['semestral', mes.slice(0, 4) + '-S' + (mo <= 6 ? 1 : 2)], ['anual', mes.slice(0, 4)]].forEach(([tipo, periodo]) => {
+        const k = r.grupo + '|' + tipo + '|' + periodo;
+        if (!acc.has(k)) acc.set(k, { chave: k, grupo: r.grupo, tipo, periodo, meses: 0, parcial: 'não', pct_12m: tipo === 'mensal' ? r.pct_12m : '', ...Object.fromEntries(keys.map((x) => [x, 0])) });
+        const a = acc.get(k);
+        keys.forEach((x) => { a[x] += Number(r[x]) || 0; });
+        if (r.parcial === 'sim') a.parcial = 'sim'; else a.meses += 1;
+      });
+    });
+    return [...acc.values()].map((a) => {
+      const full = a.tipo === 'mensal' ? 1 : a.tipo === 'semestral' ? 6 : 12;
+      const pot = a.potencial_mwh;
+      return { ...a, completo: a.meses >= full && a.parcial === 'não' ? 'sim' : 'não', pct_cortado: pot ? Math.round(10000 * a.cortado_mwh / pot) / 100 : null };
+    });
+  },
+});
+</script>
+
+<script>
 (() => {
   const root = document.querySelector('.cx');
   root.style.setProperty('--k-ene', dash.colors[0]);
@@ -573,32 +603,6 @@
     document.querySelectorAll('#periodo button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
     draw();
   }));
-
-  // Monthly rows rolled up to semesters and calendar years; a period is complete with 6 or 12 closed months.
-  dash.calc('serie_periodo', {
-    inputs: ['serie_mensal'],
-    title: 'Histórico por mês, semestre e ano',
-    description: 'Soma os MWh mensais de cada complexo por semestre e por ano e recalcula o % cortado sobre o potencial do período.',
-    fn: (serie_mensal) => {
-      const acc = new Map();
-      const keys = ['potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh'];
-      serie_mensal.filter((r) => r.tipo === 'complexo').forEach((r) => {
-        const mo = +r.mes.slice(5, 7);
-        [['mensal', r.mes], ['semestral', r.mes.slice(0, 4) + '-S' + (mo <= 6 ? 1 : 2)], ['anual', r.mes.slice(0, 4)]].forEach(([tipo, periodo]) => {
-          const k = r.grupo + '|' + tipo + '|' + periodo;
-          if (!acc.has(k)) acc.set(k, { chave: k, grupo: r.grupo, tipo, periodo, meses: 0, parcial: 'não', pct_12m: tipo === 'mensal' ? r.pct_12m : '', ...Object.fromEntries(keys.map((x) => [x, 0])) });
-          const a = acc.get(k);
-          keys.forEach((x) => { a[x] += Number(r[x]) || 0; });
-          if (r.parcial === 'sim') a.parcial = 'sim'; else a.meses += 1;
-        });
-      });
-      return [...acc.values()].map((a) => {
-        const full = a.tipo === 'mensal' ? 1 : a.tipo === 'semestral' ? 6 : 12;
-        const pot = a.potencial_mwh;
-        return { ...a, completo: a.meses >= full && a.parcial === 'não' ? 'sim' : 'não', pct_cortado: pot ? Math.round(10000 * a.cortado_mwh / pot) / 100 : null };
-      });
-    },
-  });
 
   const fail = (el, st) => {
     if (st === 'error' || st === 'connect') { el.replaceChildren(); const d = document.createElement('div'); d.className = 'cx-fail'; d.textContent = 'Failed to load'; el.append(d); return true; }
@@ -1027,21 +1031,32 @@
     const by = new Map(rows.map((r) => [r.uf, r]));
     const box = document.getElementById('sis-mapa');
     box.querySelector('svg')?.remove();
+    // Planar Mercator drawn by hand (the dashboard's d3 has no geo module); winding does not matter here.
     const feats = G.map((g) => {
       const geometry = typeof g.geometry === 'string' ? JSON.parse(g.geometry) : g.geometry;
-      const f = { type: 'Feature', properties: { uf: g.uf, nome: g.nome }, geometry };
-      // d3 wants clockwise outer rings; flip a feature that came the other way.
-      if (d3.geoArea(f) > 2 * Math.PI) {
-        const rev = (rings) => rings.map((r) => r.slice().reverse());
-        f.geometry = geometry.type === 'Polygon' ? { type: 'Polygon', coordinates: rev(geometry.coordinates) }
-          : { type: 'MultiPolygon', coordinates: geometry.coordinates.map(rev) };
-      }
-      return f;
+      const polys = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
+      return { properties: { uf: g.uf, nome: g.nome }, polys };
     });
-    const W = box.clientWidth || 500, H = Math.min(560, Math.round(W * 0.95));
-    const fc = { type: 'FeatureCollection', features: feats };
-    const proj = d3.geoMercator().fitSize([W, H], fc);
-    const path = d3.geoPath(proj);
+    const merc = ([lon, lat]) => [lon * Math.PI / 180, -Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360))];
+    const all = feats.flatMap((f) => f.polys.flatMap((p) => p.flatMap((ring) => ring.map(merc))));
+    const [x0, x1] = d3.extent(all, (q) => q[0]), [y0, y1] = d3.extent(all, (q) => q[1]);
+    const W = box.clientWidth || 500;
+    const k = W / (x1 - x0), H = Math.min(620, Math.round((y1 - y0) * k));
+    const kk = Math.min(k, H / (y1 - y0)), ox = (W - (x1 - x0) * kk) / 2;
+    const P = (c) => { const [mx, my] = merc(c); return [ox + (mx - x0) * kk, (my - y0) * kk]; };
+    const ringArea = (r) => r.reduce((a, q, i) => { const n = r[(i + 1) % r.length]; return a + q[0] * n[1] - n[0] * q[1]; }, 0) / 2;
+    const ringCentroid = (r) => {
+      let cx = 0, cy = 0; const A = ringArea(r) || 1e-9;
+      r.forEach((q, i) => { const n = r[(i + 1) % r.length], c = q[0] * n[1] - n[0] * q[1]; cx += (q[0] + n[0]) * c; cy += (q[1] + n[1]) * c; });
+      return [cx / (6 * A), cy / (6 * A)];
+    };
+    feats.forEach((f) => {
+      f.rings = f.polys.map((p) => p.map((ring) => ring.map(P)));
+      f.d = f.rings.flatMap((p) => p.map((ring) => 'M' + ring.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join('L') + 'Z')).join('');
+      const outer = f.rings.map((p) => p[0]).sort((m, n) => Math.abs(ringArea(n)) - Math.abs(ringArea(m)))[0];
+      f.area = Math.abs(ringArea(outer));
+      f.c = ringCentroid(outer);
+    });
     const css = getComputedStyle(document.documentElement);
     const lo = css.getPropertyValue('--color-panel').trim() || '#fff';
     const hi = css.getPropertyValue('--color-bad').trim() || '#b43a2f';
@@ -1050,7 +1065,7 @@
     const color = (v) => ramp(Math.min(1, v / vmax));
     const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
     const tip = tipFor(box);
-    svg.append('g').selectAll('path').data(feats).join('path').attr('class', 'uf').attr('d', path)
+    svg.append('g').selectAll('path').data(feats).join('path').attr('class', 'uf').attr('d', (f) => f.d)
       .attr('fill', (f) => { const r = by.get(f.properties.uf); return r ? color(num(r.pct_cortado)) : 'var(--cds-chart-grid)'; })
       .on('mousemove', (ev, f) => {
         const r = by.get(f.properties.uf);
@@ -1066,8 +1081,8 @@
       })
       .on('mouseleave', () => tip.hide());
     // labels on states that have data and enough room
-    svg.append('g').selectAll('text').data(feats.filter((f) => by.has(f.properties.uf) && path.area(f) > 500)).join('text')
-      .attr('x', (f) => path.centroid(f)[0]).attr('y', (f) => path.centroid(f)[1]).attr('text-anchor', 'middle').attr('dy', '0.32em')
+    svg.append('g').selectAll('text').data(feats.filter((f) => by.has(f.properties.uf) && f.area > 500)).join('text')
+      .attr('x', (f) => f.c[0]).attr('y', (f) => f.c[1]).attr('text-anchor', 'middle').attr('dy', '0.32em')
       .attr('fill', (f) => (num(by.get(f.properties.uf).pct_cortado) / vmax > 0.55 ? 'var(--color-panel)' : 'var(--color-fg)'))
       .style('font-size', '10px').style('pointer-events', 'none')
       .text((f) => f.properties.uf + ' ' + nf0.format(num(by.get(f.properties.uf).pct_cortado)) + '%');
