@@ -11,14 +11,14 @@ import shutil
 import sys
 
 PAGE, DATA, OUT = sys.argv[1:4]
-DATASETS = ["serie_mensal", "resumo_12m", "pares_12m", "usinas"]
+DATASETS = ["serie_mensal", "resumo_12m", "pares_12m", "usinas", "sin_mensal", "sistema_12m", "uf_12m", "mapa_uf.json"]
 
 HEAD = """<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Curtailment dos ativos com debêntures</title>
+<title>Curtailment - Projetos Renováveis</title>
 <meta name="description" content="Controle mensal de curtailment (constrained-off ONS) dos ativos renováveis com exposição via debêntures.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
@@ -64,14 +64,15 @@ HEAD = """<!doctype html>
   // Minimal stand-in for the Claude Dashboard runtime: loads ./data/<id>.csv as rows of text.
   (() => {
     const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-    const store = {}, subs = [];
+    const store = {}, subs = [], JSON_IDS = ['mapa_uf'];
     const run = () => subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
     const load = (id) => {
       if (store[id]) return store[id];
       store[id] = { status: 'loading', data: [], columns: [] };
-      fetch('data/' + id + '.csv', { cache: 'no-cache' })
+      const json = JSON_IDS.includes(id);
+      fetch('data/' + id + (json ? '.json' : '.csv'), { cache: 'no-cache' })
         .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
-        .then((t) => { const rows = d3.csvParse(t); store[id] = { status: 'ok', data: rows, columns: rows.columns }; run(); })
+        .then((t) => { const rows = json ? JSON.parse(t) : d3.csvParse(t); store[id] = { status: 'ok', data: rows, columns: rows.columns || Object.keys(rows[0] || {}) }; run(); })
         .catch((e) => { store[id] = { status: 'error', data: [], columns: [], message: String(e) }; run(); });
       return store[id];
     };
@@ -108,6 +109,7 @@ os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
 with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as f:
     f.write(HEAD + page + FOOT)
 for d in DATASETS:
-    shutil.copy(os.path.join(DATA, d + ".csv"), os.path.join(OUT, "data", d + ".csv"))
+    name = d if d.endswith(".json") else d + ".csv"
+    shutil.copy(os.path.join(DATA, name), os.path.join(OUT, "data", name))
 open(os.path.join(OUT, ".nojekyll"), "w").close()
 print("site:", os.path.join(OUT, "index.html"), "+", len(DATASETS), "csv")

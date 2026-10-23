@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Curtailment dos ativos com debêntures</title>
+<title>Curtailment - Projetos Renováveis</title>
 <meta name="description" content="Controle mensal de curtailment (constrained-off ONS) dos ativos renováveis com exposição via debêntures.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400&display=swap">
@@ -49,14 +49,15 @@
   // Minimal stand-in for the Claude Dashboard runtime: loads ./data/<id>.csv as rows of text.
   (() => {
     const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-    const store = {}, subs = [];
+    const store = {}, subs = [], JSON_IDS = ['mapa_uf'];
     const run = () => subs.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
     const load = (id) => {
       if (store[id]) return store[id];
       store[id] = { status: 'loading', data: [], columns: [] };
-      fetch('data/' + id + '.csv', { cache: 'no-cache' })
+      const json = JSON_IDS.includes(id);
+      fetch('data/' + id + (json ? '.json' : '.csv'), { cache: 'no-cache' })
         .then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
-        .then((t) => { const rows = d3.csvParse(t); store[id] = { status: 'ok', data: rows, columns: rows.columns }; run(); })
+        .then((t) => { const rows = json ? JSON.parse(t) : d3.csvParse(t); store[id] = { status: 'ok', data: rows, columns: rows.columns || Object.keys(rows[0] || {}) }; run(); })
         .catch((e) => { store[id] = { status: 'error', data: [], columns: [], message: String(e) }; run(); });
       return store[id];
     };
@@ -110,12 +111,24 @@
   .cx-table th, .cx-table td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--color-border-line); }
   .cx-table th:first-child, .cx-table td:first-child, .cx-table .l { text-align: left; }
   .cx-table th { position: sticky; top: 0; background: var(--color-panel); color: var(--color-fg-muted); font-weight: 500; font-size: var(--cds-font-size-caption); }
+  #tbl-uf th, #tbl-uf td { padding-inline: 6px; }
   .cx-table td.pos { color: var(--color-bad); }
   .cx-table td.neg { color: var(--color-ok); }
   .cx-table tr.partial td { color: var(--color-fg-muted); font-style: italic; }
   .cx-seg { display: inline-flex; flex-wrap: wrap; gap: 4px; }
   .cx-seg button { appearance: none; font: inherit; font-size: var(--cds-font-size-caption); padding: 5px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); cursor: pointer; }
   .cx-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+  .cx-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+  .cx-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: 4px; align-content: start; }
+  .cx-tile .cx-big { font-size: var(--cds-font-size-title); }
+  .cx-split { display: grid; gap: var(--cds-gap-md); grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 1000px) { .cx-split { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); } }
+  .cx-map { position: relative; min-height: 320px; }
+  .cx-map svg { display: block; }
+  .cx-map path.uf { stroke: var(--color-panel); stroke-width: 0.8; cursor: default; }
+  .cx-map path.uf:hover { stroke: var(--color-fg); stroke-width: 1.5; }
+  .cx-ramp { display: flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .cx-ramp .bar { flex: 1; max-width: 220px; height: 10px; border-radius: 5px; }
   .cx-pickers { display: grid; gap: var(--cds-gap-sm); }
   .cx-subpick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); padding: var(--cds-pad-sm) var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
   .cx-subpick[hidden] { display: none; }
@@ -140,21 +153,104 @@
 
 <div class="cx">
   <header class="cx-head">
-    <h1 class="cx-title" id="topo">Curtailment dos ativos com debêntures</h1>
+    <h1 class="cx-title" id="topo">Curtailment - Projetos Renováveis</h1>
     <p class="cx-lede" id="takeaway">Carregando…</p>
     <p class="cx-sub">Constrained-off apurado pelo ONS (razão energética, confiabilidade elétrica e indisponibilidade externa). Janela de 12 meses: <span data-source="resumo_12m" data-field="janela" data-where="grupo=EOL_NE">—</span>. Dados até <span data-source="resumo_12m" data-field="dados_ate" data-where="grupo=EOL_NE">—</span>; o mês em andamento é parcial e fica fora das janelas de 12 meses.</p>
   </header>
 
   <nav class="cx-tabs" role="tablist" aria-label="Seções">
-    <button class="cx-tab" role="tab" id="tab-geral" data-tab="geral" aria-selected="true">Visão geral</button>
+    <button class="cx-tab" role="tab" id="tab-sistema" data-tab="sistema" aria-selected="true">Visão Geral - Curtailment</button>
+    <button class="cx-tab" role="tab" id="tab-geral" data-tab="geral" aria-selected="false">Projetos Renováveis</button>
     <button class="cx-tab" role="tab" id="tab-mensal" data-tab="mensal" aria-selected="false">Mês a mês</button>
     <button class="cx-tab" role="tab" id="tab-pares" data-tab="pares" aria-selected="false">Pares</button>
     <button class="cx-tab" role="tab" id="tab-usinas" data-tab="usinas" aria-selected="false">Usinas mapeadas</button>
     <button class="cx-tab" role="tab" id="tab-metodo" data-tab="metodo" aria-selected="false">Método e fontes</button>
   </nav>
 
+  <!-- ============ VISÃO GERAL - CURTAILMENT ============ -->
+  <section class="cx-section" id="sistema" data-panel="sistema">
+    <div class="cx-row" style="justify-content: space-between;">
+      <p class="cx-note" style="max-width: 70ch;">Todo o constrained-off de eólicas e solares despachadas pelo ONS (usinas Tipo I, II-B e II-C), sem filtro de carteira. Solar só é publicada a partir de abr/24, então "Eólica + solar" começa nesse mês.</p>
+      <div class="cx-seg" role="group" aria-label="Fonte" id="sis-fonte">
+        <button data-f="TOTAL" aria-pressed="true">Eólica + solar</button>
+        <button data-f="EOL" aria-pressed="false">Eólica</button>
+        <button data-f="UFV" aria-pressed="false">Solar</button>
+      </div>
+    </div>
+
+    <div class="cx-tiles" id="sis-tiles">
+      <div class="cx-tile"><span class="cx-note">Energia cortada, 12 meses</span><span class="cx-big" data-source="sistema_12m" data-field="cortado_gwh" data-sis>—</span><span class="cx-note">de <span data-source="sistema_12m" data-field="potencial_gwh" data-sis>—</span> de geração potencial</span></div>
+      <div class="cx-tile"><span class="cx-note">% cortado, 12 meses</span><span class="cx-big" data-source="sistema_12m" data-field="pct_cortado" data-sis>—</span><span class="cx-note">12m anteriores: <span data-source="sistema_12m" data-field="pct_12m_anterior" data-sis>—</span> (<span data-source="sistema_12m" data-field="delta_pp" data-sis>—</span>)</span></div>
+      <div class="cx-tile"><span class="cx-note">Razão energética</span><span class="cx-big" data-source="sistema_12m" data-field="pct_ene" data-sis>—</span><span class="cx-note">confiabilidade <span data-source="sistema_12m" data-field="pct_cnf" data-sis>—</span> · indisp. externa <span data-source="sistema_12m" data-field="pct_rel" data-sis>—</span></span></div>
+      <div class="cx-tile"><span class="cx-note">Último mês fechado (<span data-source="sistema_12m" data-field="ultimo_mes" data-sis>—</span>)</span><span class="cx-big" data-source="sistema_12m" data-field="pct_ultimo_mes" data-sis>—</span><span class="cx-note"><span data-source="sistema_12m" data-field="cortado_ultimo_mes_gwh" data-sis>—</span> cortados</span></div>
+      <div class="cx-tile"><span class="cx-note">Origem local (rede)</span><span class="cx-big" data-source="sistema_12m" data-field="pct_local" data-sis>—</span><span class="cx-note">do potencial, restrições da rede local</span></div>
+    </div>
+
+    <article class="cx-card" id="sis-mensal-card">
+      <h3>Energia cortada por mês e motivo, SIN</h3>
+      <p class="cx-note">GWh. O mês em andamento aparece mais claro (parcial).</p>
+      <div class="cx-legend" id="leg-sis"></div>
+      <div class="cx-chart" id="chart-sis-gwh" data-source="sin_mensal"></div>
+    </article>
+
+    <article class="cx-card" id="sis-pct-card">
+      <h3>% da geração potencial cortada, por submercado</h3>
+      <p class="cx-note">Mês a mês. Norte e Sul têm poucas usinas e oscilam mais.</p>
+      <div class="cx-chart short" id="chart-sis-pct" data-source="sin_mensal"></div>
+    </article>
+
+    <div class="cx-split">
+      <article class="cx-card" id="sis-mapa-card">
+        <h3>Mapa de calor por estado, 12 meses</h3>
+        <p class="cx-note">% da geração potencial cortada em <span data-source="sistema_12m" data-field="janela" data-where="chave=TOTAL_SIN">—</span>. Estados em cinza não têm usinas eólicas ou solares despachadas pelo ONS na fonte escolhida.</p>
+        <div class="cx-ramp" id="sis-ramp"></div>
+        <div class="cx-map" id="sis-mapa" data-source="uf_12m mapa_uf"></div>
+      </article>
+      <article class="cx-card" id="sis-uf-card">
+        <h3>Ranking por estado, 12 meses</h3>
+        <p class="cx-note">Ordenado pelo % cortado.</p>
+        <div class="cx-tablewrap">
+          <table class="cx-table" id="tbl-uf" data-source="uf_12m" data-row-key="chave">
+            <thead><tr>
+              <th data-field="estado">Estado</th>
+              <th data-field="potencial_gwh">Potencial (GWh)</th>
+              <th data-field="cortado_gwh">Cortado (GWh)</th>
+              <th data-field="pct_cortado">% cortado</th>
+              <th data-field="pct_ene">Energética</th>
+              <th data-field="pct_cnf">Confiab.</th>
+              <th data-field="pct_rel">Indisp. ext.</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+
+    <article class="cx-card" id="sis-sub-card">
+      <h3>Por submercado, 12 meses</h3>
+      <div class="cx-tablewrap">
+        <table class="cx-table" id="tbl-sub" data-source="sistema_12m" data-row-key="chave">
+          <thead><tr>
+            <th data-field="submercado_nome">Submercado</th>
+            <th data-field="potencial_gwh">Potencial (GWh)</th>
+            <th data-field="cortado_gwh">Cortado (GWh)</th>
+            <th data-field="pct_cortado">% cortado</th>
+            <th data-field="pct_ene">Energética</th>
+            <th data-field="pct_cnf">Confiab.</th>
+            <th data-field="pct_rel">Indisp. ext.</th>
+            <th data-field="pct_local">Origem local</th>
+            <th data-field="pct_12m_anterior">12m anterior</th>
+            <th data-field="delta_pp">Δ p.p.</th>
+            <th data-field="pct_ultimo_mes">Último mês</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
   <!-- ============ VISÃO GERAL ============ -->
-  <section class="cx-section" id="geral" data-panel="geral">
+  <section class="cx-section" id="geral" data-panel="geral" hidden>
     <div class="cx-grid" id="cards">
       <article class="cx-card" id="card-assurua" data-g="assurua">
         <div class="cx-row" style="justify-content: space-between;">
@@ -507,7 +603,7 @@
   const toDate = (m) => new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 1, 1));
 
   const FMT = {
-    pct_12m: pct, pct_12m_anterior: pct, pct_ene: pct, pct_cnf: pct, pct_rel: pct, pct_local: pct, pct_ultimo_mes: pct,
+    pct_12m: pct, pct_cortado: pct, pct_12m_anterior: pct, pct_ene: pct, pct_cnf: pct, pct_rel: pct, pct_local: pct, pct_ultimo_mes: pct,
     pct_ref_fonte_sub: pct, pct_ref_fonte_sin: pct, pct_ref_sub: pct,
     delta_pp: pp, spread_fonte_sub_pp: pp, spread_fonte_sin_pp: pp, spread_sub_pp: pp,
     cortado_gwh: (v) => nf1.format(v) + ' GWh', potencial_gwh: (v) => nf0.format(v) + ' GWh',
@@ -517,7 +613,7 @@
   };
 
   // ---------- tabs ----------
-  let tab = 'geral';
+  let tab = 'sistema';
   const tabs = [...document.querySelectorAll('.cx-tab')];
   const show = (name, link = true) => {
     tab = name;
@@ -869,9 +965,213 @@
     }));
   }
 
+  // ---------- system-wide view ----------
+  let fonte = 'TOTAL';
+  document.querySelectorAll('#sis-fonte button').forEach((b) => b.addEventListener('click', () => {
+    fonte = b.dataset.f;
+    document.querySelectorAll('#sis-fonte button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    draw();
+  }));
+  const gwh = (v) => (v >= 1000 ? nf1.format(v / 1000) + ' TWh' : nf0.format(v) + ' GWh');
+  const SUBNAME = { NE: 'Nordeste', SE: 'Sudeste/C-Oeste', S: 'Sul', N: 'Norte' };
+
+  function drawSistemaTiles(T) {
+    const r = T.find((x) => x.chave === fonte + '_SIN');
+    document.querySelectorAll('#sistema [data-field="janela"]:not([data-sis])').forEach((el) => {
+      el.textContent = T.find((x) => x.chave === 'TOTAL_SIN')?.janela || '—';
+    });
+    document.querySelectorAll('#sistema [data-sis]').forEach((el) => {
+      el.dataset.where = 'chave=' + fonte + '_SIN';
+      const f = el.dataset.field;
+      if (!r) { el.textContent = '—'; return; }
+      if (TEXT.has(f)) { el.textContent = r[f]; return; }
+      const v = num(r[f]);
+      el.textContent = v == null ? '—' : /gwh/.test(f) ? gwh(v) : (FMT[f] || nf1.format)(v);
+      if (f === 'delta_pp' && v != null) el.style.color = v > 0 ? 'var(--color-bad)' : 'var(--color-ok)';
+    });
+    const tb = document.querySelector('#tbl-sub tbody');
+    const cols = ['submercado_nome', 'potencial_gwh', 'cortado_gwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'pct_ultimo_mes'];
+    tb.replaceChildren(...T.filter((x) => x.fonte === fonte).map((x) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = x.chave;
+      if (x.submercado === 'SIN') tr.style.fontWeight = '600';
+      cols.forEach((c) => {
+        const td = document.createElement('td');
+        const v = c === 'submercado_nome' ? x[c] : num(x[c]);
+        td.textContent = c === 'submercado_nome' ? v : v == null ? '—' : /gwh/.test(c) ? nf0.format(v) : (FMT[c] || pct)(v);
+        if (c === 'delta_pp' && v != null) td.className = v > 0 ? 'pos' : 'neg';
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+
+  function drawSistemaMensal(M) {
+    const rows = M.filter((r) => r.fonte === fonte && r.submercado === 'SIN');
+    const leg = document.getElementById('leg-sis');
+    leg.replaceChildren(...[['var(--k-ene)', 'Energética'], ['var(--k-cnf)', 'Confiabilidade'], ['var(--k-rel)', 'Indisp. externa']].map(([c, l]) => {
+      const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = c; s.append(i, document.createTextNode(l)); return s;
+    }));
+    const box = document.getElementById('chart-sis-gwh');
+    box.querySelector('svg')?.remove();
+    const W = box.clientWidth || 600, H = 280, m = { t: 8, r: 8, b: 26, l: 52 };
+    const x = d3.scaleBand(rows.map((r) => r.mes), [m.l, W - m.r]).padding(0.2);
+    const y = d3.scaleLinear([0, d3.max(rows, (r) => num(r.cortado_gwh)) || 1], [H - m.b, m.t]).nice();
+    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    axisStyle(svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat((v) => nf0.format(v))));
+    const step = Math.max(1, Math.ceil(rows.length / Math.max(2, Math.floor((W - m.l) / 54))));
+    axisStyle(svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(rows.map((r) => r.mes).filter((_, i) => i % step === 0)).tickFormat(fmtMes).tickSize(0).tickPadding(8)));
+    const keys = ['ene_gwh', 'cnf_gwh', 'rel_gwh'];
+    const colors = ['var(--k-ene)', 'var(--k-cnf)', 'var(--k-rel)'];
+    const stack = d3.stack().keys(keys).value((d, k) => num(d[k]) || 0)(rows);
+    svg.append('g').selectAll('g').data(stack).join('g').attr('fill', (_, i) => colors[i])
+      .selectAll('rect').data((d) => d).join('rect')
+      .attr('x', (d) => x(d.data.mes)).attr('width', x.bandwidth())
+      .attr('y', (d) => y(d[1])).attr('height', (d) => Math.max(0, y(d[0]) - y(d[1])))
+      .attr('opacity', (d) => (d.data.parcial === 'sim' ? 0.45 : 1));
+    const tip = tipFor(box);
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (d) => x(d.mes) - x.step() * x.paddingInner() / 2).attr('width', x.step()).attr('y', m.t).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('mousemove', (ev, d) => {
+        const [px, py] = d3.pointer(ev, box);
+        tip.show(px, py, fmtMes(d.mes) + (d.parcial === 'sim' ? ' (parcial)' : ''), [
+          [null, 'Cortado', nf0.format(num(d.cortado_gwh)) + ' GWh (' + pct(num(d.pct_cortado)) + ')'],
+          ['var(--k-ene)', 'Energética', nf0.format(num(d.ene_gwh)) + ' GWh'],
+          ['var(--k-cnf)', 'Confiabilidade', nf0.format(num(d.cnf_gwh)) + ' GWh'],
+          ['var(--k-rel)', 'Indisp. externa', nf0.format(num(d.rel_gwh)) + ' GWh'],
+          [null, 'Potencial', nf0.format(num(d.potencial_gwh)) + ' GWh'],
+        ]);
+      })
+      .on('mouseleave', () => tip.hide());
+
+    // % by submarket
+    const b2 = document.getElementById('chart-sis-pct');
+    b2.querySelector('svg')?.remove();
+    const subs = ['NE', 'SE', 'S', 'N'];
+    const cols = { NE: dash.colors[0], SE: dash.colors[1], S: dash.colors[2], N: 'var(--cds-chart-muted)' };
+    const series = subs.map((sb) => ({ sb, pts: M.filter((r) => r.fonte === fonte && r.submercado === sb && r.parcial !== 'sim' && num(r.pct_cortado) != null).map((r) => ({ mes: r.mes, d: toDate(r.mes), v: num(r.pct_cortado) })) })).filter((s) => s.pts.length);
+    const all = series.flatMap((s) => s.pts);
+    const H2 = 240;
+    const svg2 = d3.select(b2).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H2}`);
+    if (!all.length) return;
+    const endText = (s) => SUBNAME[s.sb] + ' ' + pct(s.pts[s.pts.length - 1].v);
+    const probe = svg2.append('g').style('font-size', 'var(--cds-font-size-caption)');
+    const labW = 26 + d3.max(series, (s) => probe.append('text').text(endText(s)).node().getComputedTextLength());
+    probe.remove();
+    const m2 = { t: 8, r: 8, b: 26, l: 40 };
+    const x2 = d3.scaleUtc(d3.extent(all, (p) => p.d), [m2.l, W - m2.r - labW]);
+    const y2 = d3.scaleLinear([0, Math.ceil(d3.max(all, (p) => p.v) / 10) * 10 || 10], [H2 - m2.b, m2.t]);
+    axisStyle(svg2.append('g').attr('transform', `translate(${m2.l},0)`).call(d3.axisLeft(y2).ticks(4).tickSize(-Math.max(0, W - m2.l - m2.r - labW)).tickFormat((v) => v + '%')));
+    axisStyle(svg2.append('g').attr('transform', `translate(0,${H2 - m2.b})`).call(d3.axisBottom(x2).ticks(Math.max(2, Math.floor((W - labW) / 80))).tickFormat((d) => meses[d.getUTCMonth()] + '/' + String(d.getUTCFullYear()).slice(2)).tickSize(0).tickPadding(8)));
+    const ends = [];
+    series.forEach((s) => {
+      svg2.append('path').attr('d', d3.line((p) => x2(p.d), (p) => y2(p.v))(s.pts)).attr('fill', 'none').attr('stroke', cols[s.sb])
+        .attr('stroke-width', s.sb === 'NE' ? 2.5 : 1.75).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+      const last = s.pts[s.pts.length - 1];
+      svg2.append('circle').attr('cx', x2(last.d)).attr('cy', y2(last.v)).attr('r', 3).attr('fill', cols[s.sb]);
+      ends.push({ y: y2(last.v), x: x2(last.d) + 8, t: endText(s), c: cols[s.sb] });
+    });
+    ends.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 16) ends[i].y = ends[i - 1].y + 16;
+    const over = ends.length ? ends[ends.length - 1].y - (H2 - m2.b) : 0;
+    if (over > 0) ends.forEach((e) => { e.y -= over; });
+    ends.forEach((e) => {
+      svg2.append('line').attr('x1', e.x).attr('x2', e.x + 12).attr('y1', e.y).attr('y2', e.y).attr('stroke', e.c).attr('stroke-width', 2);
+      svg2.append('text').attr('x', e.x + 16).attr('y', e.y).attr('dy', '0.32em').attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').text(e.t);
+    });
+    const tip2 = tipFor(b2);
+    const months = [...new Set(all.map((p) => p.mes))].sort();
+    svg2.append('rect').attr('x', m2.l).attr('y', m2.t).attr('width', Math.max(0, W - m2.l - m2.r - labW)).attr('height', H2 - m2.t - m2.b).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [px] = d3.pointer(ev, svg2.node());
+        const dt = x2.invert(px);
+        const mes = months.reduce((a, b) => (Math.abs(toDate(b) - dt) < Math.abs(toDate(a) - dt) ? b : a));
+        const [bx, by] = d3.pointer(ev, b2);
+        tip2.show(bx, by, fmtMes(mes), series.map((s) => [cols[s.sb], SUBNAME[s.sb], pct(s.pts.find((p) => p.mes === mes)?.v ?? null)]));
+      })
+      .on('mouseleave', () => tip2.hide());
+  }
+
+  function drawMapa(U, G) {
+    const rows = U.filter((r) => r.fonte === fonte);
+    const by = new Map(rows.map((r) => [r.uf, r]));
+    const box = document.getElementById('sis-mapa');
+    box.querySelector('svg')?.remove();
+    const feats = G.map((g) => {
+      const geometry = typeof g.geometry === 'string' ? JSON.parse(g.geometry) : g.geometry;
+      const f = { type: 'Feature', properties: { uf: g.uf, nome: g.nome }, geometry };
+      // d3 wants clockwise outer rings; flip a feature that came the other way.
+      if (d3.geoArea(f) > 2 * Math.PI) {
+        const rev = (rings) => rings.map((r) => r.slice().reverse());
+        f.geometry = geometry.type === 'Polygon' ? { type: 'Polygon', coordinates: rev(geometry.coordinates) }
+          : { type: 'MultiPolygon', coordinates: geometry.coordinates.map(rev) };
+      }
+      return f;
+    });
+    const W = box.clientWidth || 500, H = Math.min(560, Math.round(W * 0.95));
+    const fc = { type: 'FeatureCollection', features: feats };
+    const proj = d3.geoMercator().fitSize([W, H], fc);
+    const path = d3.geoPath(proj);
+    const css = getComputedStyle(document.documentElement);
+    const lo = css.getPropertyValue('--color-panel').trim() || '#fff';
+    const hi = css.getPropertyValue('--color-bad').trim() || '#b43a2f';
+    const vmax = Math.max(10, Math.ceil((d3.max(rows, (r) => num(r.pct_cortado)) || 10) / 5) * 5);
+    const ramp = d3.interpolateRgb(d3.interpolateRgb(lo, hi)(0.12), hi);
+    const color = (v) => ramp(Math.min(1, v / vmax));
+    const svg = d3.select(box).insert('svg', ':first-child').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const tip = tipFor(box);
+    svg.append('g').selectAll('path').data(feats).join('path').attr('class', 'uf').attr('d', path)
+      .attr('fill', (f) => { const r = by.get(f.properties.uf); return r ? color(num(r.pct_cortado)) : 'var(--cds-chart-grid)'; })
+      .on('mousemove', (ev, f) => {
+        const r = by.get(f.properties.uf);
+        const [px, py] = d3.pointer(ev, box);
+        tip.show(px, py, f.properties.nome, r ? [
+          [null, '% cortado', pct(num(r.pct_cortado))],
+          [null, 'Cortado', nf0.format(num(r.cortado_gwh)) + ' GWh'],
+          [null, 'Potencial', nf0.format(num(r.potencial_gwh)) + ' GWh'],
+          ['var(--k-ene)', 'Energética', pct(num(r.pct_ene))],
+          ['var(--k-cnf)', 'Confiabilidade', pct(num(r.pct_cnf))],
+          ['var(--k-rel)', 'Indisp. externa', pct(num(r.pct_rel))],
+        ] : [[null, 'Sem usinas na fonte escolhida', '']]);
+      })
+      .on('mouseleave', () => tip.hide());
+    // labels on states that have data and enough room
+    svg.append('g').selectAll('text').data(feats.filter((f) => by.has(f.properties.uf) && path.area(f) > 500)).join('text')
+      .attr('x', (f) => path.centroid(f)[0]).attr('y', (f) => path.centroid(f)[1]).attr('text-anchor', 'middle').attr('dy', '0.32em')
+      .attr('fill', (f) => (num(by.get(f.properties.uf).pct_cortado) / vmax > 0.55 ? 'var(--color-panel)' : 'var(--color-fg)'))
+      .style('font-size', '10px').style('pointer-events', 'none')
+      .text((f) => f.properties.uf + ' ' + nf0.format(num(by.get(f.properties.uf).pct_cortado)) + '%');
+    const rp = document.getElementById('sis-ramp');
+    const bar = document.createElement('span'); bar.className = 'bar';
+    bar.style.background = `linear-gradient(90deg, ${d3.range(0, 1.01, 0.25).map((t) => ramp(t)).join(', ')})`;
+    const a = document.createElement('span'); a.textContent = '0%';
+    const z = document.createElement('span'); z.textContent = vmax + '%+';
+    rp.replaceChildren(a, bar, z);
+
+    const tb = document.querySelector('#tbl-uf tbody');
+    const cols = ['estado', 'potencial_gwh', 'cortado_gwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel'];
+    tb.replaceChildren(...rows.slice().sort((p, q) => num(q.pct_cortado) - num(p.pct_cortado)).map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = r.chave;
+      cols.forEach((c) => {
+        const td = document.createElement('td');
+        const v = c === 'estado' ? r[c] : num(r[c]);
+        td.textContent = c === 'estado' ? v : v == null ? '—' : /gwh/.test(c) ? nf0.format(v) : pct(v);
+        tr.append(td);
+      });
+      return tr;
+    }));
+  }
+
   function draw() {
     const R = dash.data('resumo_12m');
     if (R.status === 'ok') { drawOverview(R.data); drawTupi(R.data); }
+    if (tab === 'sistema') {
+      const T = dash.data('sistema_12m'), M = dash.data('sin_mensal'), U = dash.data('uf_12m'), G = dash.data('mapa_uf');
+      if (T.status === 'ok') drawSistemaTiles(T.data);
+      if (M.status === 'ok') drawSistemaMensal(M.data); else ['chart-sis-gwh', 'chart-sis-pct'].forEach((id) => fail(document.getElementById(id), M.status));
+      if (U.status === 'ok' && G.status === 'ok') drawMapa(U.data, G.data); else fail(document.getElementById('sis-mapa'), U.status === 'ok' ? G.status : U.status);
+    }
     if (tab === 'mensal') {
       const S = dash.data('serie_mensal');
       const boxes = ['chart-mensal', 'chart-12m'].map((id) => document.getElementById(id));
@@ -891,7 +1191,7 @@
 
   dash.onData(draw);
   const named = location.hash.slice(1);
-  if (['geral', 'mensal', 'pares', 'usinas', 'metodo'].includes(named)) show(named, false);
+  if (['sistema', 'geral', 'mensal', 'pares', 'usinas', 'metodo'].includes(named)) show(named, false);
 })();
 </script>
 

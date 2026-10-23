@@ -140,3 +140,80 @@ write("serie_mensal", serie)
 write("resumo_12m", resumo)
 write("pares_12m", pares)
 write("usinas", usinas)
+
+
+# ---------- System-wide view (all ONS plants, assets included) ----------
+SUBS = {"NE": "Nordeste", "SE": "Sudeste/C-Oeste", "S": "Sul", "N": "Norte"}
+FONTES = {"EOL": "Eólica", "UFV": "Solar", "TOTAL": "Eólica + solar"}
+sis = o["sistema"]
+
+
+def agg(rows):
+    a = {k: sum(r[k] for r in rows) for k in ("ger", "ene", "cnf", "rel", "par", "loc")}
+    a["cut"] = a["ene"] + a["cnf"] + a["rel"] + a["par"]
+    a["pot"] = a["ger"] + a["cut"]
+    return a
+
+
+def pcts(a):
+    p = a["pot"] or None
+    return dict(pct_cortado=r1(100 * a["cut"] / p) if p else None, pct_ene=r1(100 * a["ene"] / p) if p else None,
+                pct_cnf=r1(100 * a["cnf"] / p) if p else None, pct_rel=r1(100 * a["rel"] / p) if p else None,
+                pct_local=r1(100 * a["loc"] / p) if p else None)
+
+
+sin_mensal = []
+meses = sorted({r["mes"] for r in sis})
+for f in ("EOL", "UFV", "TOTAL"):
+    for sub in ("SIN", *SUBS):
+        for m in meses:
+            rows = [r for r in sis if r["mes"] == m and (f == "TOTAL" or r["fonte"] == f) and (sub == "SIN" or r["sub"] == sub)]
+            # Solar is only published from Apr/24; before that a "total" would be wind only.
+            if not rows or (f == "TOTAL" and m < o["meta"]["inicio"]["UFV"]):
+                continue
+            a = agg(rows)
+            if not a["pot"]:
+                continue
+            sin_mensal.append(dict(fonte=f, fonte_nome=FONTES[f], submercado=sub, submercado_nome=SUBS.get(sub, "SIN"),
+                                   mes=m[:7], parcial="sim" if m == PARTIAL else "não",
+                                   potencial_gwh=r1(a["pot"] / 1e3, 1), geracao_gwh=r1(a["ger"] / 1e3, 1),
+                                   cortado_gwh=r1(a["cut"] / 1e3, 1), ene_gwh=r1(a["ene"] / 1e3, 1),
+                                   cnf_gwh=r1(a["cnf"] / 1e3, 1), rel_gwh=r1(a["rel"] / 1e3, 1),
+                                   par_gwh=r1(a["par"] / 1e3, 1), local_gwh=r1(a["loc"] / 1e3, 1), **pcts(a)))
+
+sistema_12m = []
+for f in ("EOL", "UFV", "TOTAL"):
+    for sub in ("SIN", *SUBS):
+        sel = lambda r, a, b: a <= r["mes"] <= b and (f == "TOTAL" or r["fonte"] == f) and (sub == "SIN" or r["sub"] == sub)
+        a = agg([r for r in sis if sel(r, *LTM)])
+        if not a["pot"]:
+            continue
+        p = agg([r for r in sis if sel(r, *PREV)])
+        if f == "TOTAL" and PREV[0] < o["meta"]["inicio"]["UFV"]:
+            p = {"pot": 0}
+        last = agg([r for r in sis if sel(r, LTM[1], LTM[1])])
+        pc = pcts(a)
+        sistema_12m.append(dict(chave=f"{f}_{sub}", fonte=f, fonte_nome=FONTES[f], submercado=sub,
+                                submercado_nome=SUBS.get(sub, "SIN"), janela=JANELA, ultimo_mes=mes_label(LTM[1]),
+                                dados_ate=DADOS_ATE, potencial_gwh=r1(a["pot"] / 1e3, 1),
+                                cortado_gwh=r1(a["cut"] / 1e3, 1), **pc,
+                                pct_12m_anterior=r1(100 * p["cut"] / p["pot"]) if p["pot"] else None,
+                                delta_pp=r1(pc["pct_cortado"] - 100 * p["cut"] / p["pot"]) if p["pot"] else None,
+                                cortado_ultimo_mes_gwh=r1(last["cut"] / 1e3, 1),
+                                pct_ultimo_mes=pcts(last)["pct_cortado"]))
+
+uf_12m = []
+NOMES_UF = {g["uf"]: g["nome"] for g in json.load(open(f"{DEST}/mapa_uf.json"))}
+for f in ("EOL", "UFV", "TOTAL"):
+    for uf in sorted({r["uf"] for r in sis}):
+        rows = [r for r in sis if LTM[0] <= r["mes"] <= LTM[1] and (f == "TOTAL" or r["fonte"] == f) and r["uf"] == uf]
+        a = agg(rows)
+        if not a["pot"]:
+            continue
+        uf_12m.append(dict(chave=f"{f}_{uf}", fonte=f, fonte_nome=FONTES[f], uf=uf, estado=NOMES_UF.get(uf, uf),
+                           submercado=rows[0]["sub"], potencial_gwh=r1(a["pot"] / 1e3, 1),
+                           cortado_gwh=r1(a["cut"] / 1e3, 1), **pcts(a)))
+
+write("sin_mensal", sin_mensal)
+write("sistema_12m", sistema_12m)
+write("uf_12m", uf_12m)

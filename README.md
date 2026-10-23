@@ -27,6 +27,8 @@ As janelas de 12 meses usam sempre os últimos 12 meses fechados disponíveis no
 - `resumo_12m.csv`: 12 meses, comparação com fonte/submercado, tendência, correlação, percentil; `controladora` liga complexos à empresa consolidadora
 - `pares_12m.csv`: % cortado em 12 meses de cada usina/conjunto da mesma fonte e submercado
 - `usinas.csv`: mapeamento das usinas (código ONS, CEG) por complexo
+- `sin_mensal.csv`, `sistema_12m.csv`, `uf_12m.csv`: visão geral de todo o constrained-off do ONS (SIN, submercado e estado; eólica, solar e total)
+- `mapa_uf.json`: contorno simplificado dos estados (brazil-states.geojson do projeto click_that_hood, simplificado com mapshaper)
 
 ## Método
 - Energia cortada = `val_geracaonaorealizadaapurada` (MWmed × 0,5 h); potencial = gerado + cortado.

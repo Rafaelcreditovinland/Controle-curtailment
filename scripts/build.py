@@ -137,6 +137,15 @@ for k, w in BENCH.items():
     out["bench"][k] = [dict(mes=str(r[0]), ger=r[1], ene=r[2] or 0, cnf=r[3] or 0, rel=r[4] or 0, par=r[5] or 0, n=r[6], loc=r[7] or 0)
                        for r in rows]
 
+# System-wide view (everything ONS publishes, assets included): month x source x submarket x state.
+out["sistema"] = [dict(mes=str(r[0]), fonte=r[1], sub=r[2], uf=r[3], ger=r[4] or 0, ene=r[5] or 0, cnf=r[6] or 0,
+                       rel=r[7] or 0, par=r[8] or 0, loc=r[9] or 0, n=r[10])
+                  for r in c.sql("""select mes, fonte, id_subsistema, id_estado, sum(val_geracao)/2,
+        sum(cut*(cod_razaorestricao='ENE')::int)/2, sum(cut*(cod_razaorestricao='CNF')::int)/2,
+        sum(cut*(cod_razaorestricao='REL')::int)/2, sum(cut*(cod_razaorestricao='PAR')::int)/2,
+        sum(cut*(cod_origemrestricao='LOC')::int)/2, count(distinct id_ons)
+        from tc group by all order by all""").fetchall()]
+
 # Peer distribution: last-12-complete-months % cut per conjunto/usina of same fonte+subsistema.
 for k, (f, s) in {"EOL_NE": ("EOL", "NE"), "UFV_SE": ("UFV", "SE")}.items():
     rows = c.sql(f"""select id_ons, any_value(nom_usina), any_value(id_estado),
