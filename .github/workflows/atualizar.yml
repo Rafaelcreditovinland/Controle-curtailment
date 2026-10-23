@@ -1,0 +1,60 @@
+# Atualização mensal do controle de curtailment.
+# Baixa os dados do ONS, recalcula, grava os CSVs no repositório e publica o site no GitHub Pages.
+# Roda sozinho todo dia 10, às 08:47 (Brasília). Também pode ser disparado à mão na aba Actions.
+name: Atualizar curtailment
+
+on:
+  schedule:
+    - cron: "47 11 10 * *"   # dia 10 de cada mês, 11:47 UTC = 08:47 em Brasília
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: atualizar-curtailment
+  cancel-in-progress: false
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install duckdb pyarrow numpy
+
+      - name: Baixar dados do ONS e recalcular
+        run: sh scripts/update.sh data/raw
+
+      - name: Salvar dados atualizados no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/processed docs
+          if git diff --cached --quiet; then
+            echo "Sem mudanças nos dados."
+          else
+            git commit -m "Atualização mensal: dados ONS de $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Publicar site
+        id: deploy
+        uses: actions/deploy-pages@v4
