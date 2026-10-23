@@ -1,14 +1,14 @@
 chave,fonte,fonte_nome,submercado,submercado_nome,janela,ultimo_mes,dados_ate,potencial_gwh,cortado_gwh,pct_cortado,pct_ene,pct_cnf,pct_rel,pct_local,pct_12m_anterior,delta_pp,cortado_ultimo_mes_gwh,pct_ultimo_mes
-EOL_SIN,EOL,Eólica,SIN,SIN,out/25–set/26,set/26,21/out/26,134077.3,28660.5,21.38,12.52,6.83,2.03,5.03,15.13,6.25,3459.1,25.13
-EOL_NE,EOL,Eólica,NE,Nordeste,out/25–set/26,set/26,21/out/26,124581.1,27409.3,22.0,12.91,7.34,1.75,5.0,15.87,6.13,3103.7,24.16
-EOL_SE,EOL,Eólica,SE,Sudeste/C-Oeste,out/25–set/26,set/26,21/out/26,1062.7,75.9,7.14,6.07,0.24,0.83,0.18,1.65,5.49,13.1,11.86
-EOL_S,EOL,Eólica,S,Sul,out/25–set/26,set/26,21/out/26,6369.7,953.7,14.97,6.76,0.0,8.21,8.21,3.64,11.33,310.7,56.37
-EOL_N,EOL,Eólica,N,Norte,out/25–set/26,set/26,21/out/26,2063.8,221.5,10.73,10.42,0.25,0.06,0.0,8.26,2.47,31.7,12.45
-UFV_SIN,UFV,Solar,SIN,SIN,out/25–set/26,set/26,21/out/26,49262.2,12667.4,25.71,21.06,2.76,1.89,1.73,23.1,2.61,1654.7,33.31
-UFV_NE,UFV,Solar,NE,Nordeste,out/25–set/26,set/26,21/out/26,26660.5,6988.4,26.21,20.5,3.99,1.73,1.85,22.17,4.04,920.6,33.66
-UFV_SE,UFV,Solar,SE,Sudeste/C-Oeste,out/25–set/26,set/26,21/out/26,22601.7,5679.0,25.13,21.73,1.31,2.09,1.58,24.14,0.99,734.1,32.88
-TOTAL_SIN,TOTAL,Eólica + solar,SIN,SIN,out/25–set/26,set/26,21/out/26,183339.6,41327.9,22.54,14.82,5.74,1.99,4.14,16.99,5.55,5113.9,27.3
-TOTAL_NE,TOTAL,Eólica + solar,NE,Nordeste,out/25–set/26,set/26,21/out/26,151241.6,34397.7,22.74,14.24,6.75,1.75,4.44,16.8,5.94,4024.3,25.82
-TOTAL_SE,TOTAL,Eólica + solar,SE,Sudeste/C-Oeste,out/25–set/26,set/26,21/out/26,23664.4,5754.9,24.32,21.03,1.26,2.03,1.51,23.76,0.56,747.2,31.89
-TOTAL_S,TOTAL,Eólica + solar,S,Sul,out/25–set/26,set/26,21/out/26,6369.7,953.7,14.97,6.76,0.0,8.21,8.21,3.64,11.33,310.7,56.37
-TOTAL_N,TOTAL,Eólica + solar,N,Norte,out/25–set/26,set/26,21/out/26,2063.8,221.5,10.73,10.42,0.25,0.06,0.0,8.26,2.47,31.7,12.45
+EOL_SIN,EOL,Eólica,SIN,SIN,out/25–set/26,set/26,22/out/26,134077.3,28660.5,21.38,12.52,6.83,2.03,5.03,15.13,6.25,3459.1,25.13
+EOL_NE,EOL,Eólica,NE,Nordeste,out/25–set/26,set/26,22/out/26,124581.1,27409.3,22.0,12.91,7.34,1.75,5.0,15.87,6.13,3103.7,24.16
+EOL_SE,EOL,Eólica,SE,Sudeste/C-Oeste,out/25–set/26,set/26,22/out/26,1062.7,75.9,7.14,6.07,0.24,0.83,0.18,1.65,5.49,13.1,11.86
+EOL_S,EOL,Eólica,S,Sul,out/25–set/26,set/26,22/out/26,6369.7,953.7,14.97,6.76,0.0,8.21,8.21,3.64,11.33,310.7,56.37
+EOL_N,EOL,Eólica,N,Norte,out/25–set/26,set/26,22/out/26,2063.8,221.5,10.73,10.42,0.25,0.06,0.0,8.26,2.47,31.7,12.45
+UFV_SIN,UFV,Solar,SIN,SIN,out/25–set/26,set/26,22/out/26,49262.2,12667.4,25.71,21.06,2.76,1.89,1.73,23.1,2.61,1654.7,33.31
+UFV_NE,UFV,Solar,NE,Nordeste,out/25–set/26,set/26,22/out/26,26660.5,6988.4,26.21,20.5,3.99,1.73,1.85,22.17,4.04,920.6,33.66
+UFV_SE,UFV,Solar,SE,Sudeste/C-Oeste,out/25–set/26,set/26,22/out/26,22601.7,5679.0,25.13,21.73,1.31,2.09,1.58,24.14,0.99,734.1,32.88
+TOTAL_SIN,TOTAL,Eólica + solar,SIN,SIN,out/25–set/26,set/26,22/out/26,183339.6,41327.9,22.54,14.82,5.74,1.99,4.14,16.99,5.55,5113.9,27.3
+TOTAL_NE,TOTAL,Eólica + solar,NE,Nordeste,out/25–set/26,set/26,22/out/26,151241.6,34397.7,22.74,14.24,6.75,1.75,4.44,16.8,5.94,4024.3,25.82
+TOTAL_SE,TOTAL,Eólica + solar,SE,Sudeste/C-Oeste,out/25–set/26,set/26,22/out/26,23664.4,5754.9,24.32,21.03,1.26,2.03,1.51,23.76,0.56,747.2,31.89
+TOTAL_S,TOTAL,Eólica + solar,S,Sul,out/25–set/26,set/26,22/out/26,6369.7,953.7,14.97,6.76,0.0,8.21,8.21,3.64,11.33,310.7,56.37
+TOTAL_N,TOTAL,Eólica + solar,N,Norte,out/25–set/26,set/26,22/out/26,2063.8,221.5,10.73,10.42,0.25,0.06,0.0,8.26,2.47,31.7,12.45
