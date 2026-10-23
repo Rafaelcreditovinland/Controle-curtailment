@@ -45,6 +45,7 @@
   [hidden] { display: none !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   // Minimal stand-in for the Claude Dashboard runtime: loads ./data/<id>.csv as rows of text.
   (() => {
@@ -141,6 +142,10 @@
   .cx-map path.uf:hover { stroke: var(--color-fg); stroke-width: 1.5; }
   .cx-ramp { display: flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .cx-ramp .bar { flex: 1; max-width: 220px; height: 10px; border-radius: 5px; }
+  .cx-export { appearance: none; font: inherit; font-size: var(--cds-font-size-caption); padding: 5px 12px; border-radius: 999px; border: 1px solid var(--color-fg); background: var(--color-bg); color: var(--color-fg); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .cx-export::before { content: "↓"; }
+  .cx-export:hover { background: var(--color-fg); color: var(--color-bg); }
+  .cx-export:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .cx-pickcard { cursor: pointer; transition: border-color var(--cds-dur-slow), box-shadow var(--cds-dur-slow); }
   .cx-pickcard:hover { border-color: var(--color-fg-muted); }
   .cx-pickcard[aria-pressed="true"] { border-color: var(--color-fg); box-shadow: 0 0 0 1px var(--color-fg); }
@@ -185,10 +190,13 @@
   <section class="cx-section" id="sistema" data-panel="sistema">
     <div class="cx-row" style="justify-content: space-between;">
       <p class="cx-note" style="max-width: 70ch;">Todo o constrained-off de eólicas e solares despachadas pelo ONS (usinas Tipo I, II-B e II-C), sem filtro de carteira. Solar só é publicada a partir de abr/24, então "Eólica + solar" começa nesse mês.</p>
+      <div class="cx-row">
+      <button class="cx-export" id="exp-sistema" type="button" hidden>Exportar Excel</button>
       <div class="cx-seg" role="group" aria-label="Fonte" id="sis-fonte">
         <button data-f="TOTAL" aria-pressed="true">Eólica + solar</button>
         <button data-f="EOL" aria-pressed="false">Eólica</button>
         <button data-f="UFV" aria-pressed="false">Solar</button>
+      </div>
       </div>
     </div>
 
@@ -265,7 +273,10 @@
 
   <!-- ============ VISÃO GERAL ============ -->
   <section class="cx-section" id="geral" data-panel="geral" hidden>
-    <p class="cx-note">Clique em um projeto para ver o detalhe, os gráficos e a tabela histórica.</p>
+    <div class="cx-row" style="justify-content: space-between;">
+      <p class="cx-note">Clique em um projeto para ver o detalhe, os gráficos e a tabela histórica.</p>
+      <button class="cx-export" id="exp-projetos" type="button" hidden>Exportar Excel</button>
+    </div>
     <div class="cx-grid" id="cards">
       <article class="cx-card cx-pickcard" id="card-assurua" data-g="assurua" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
@@ -1107,6 +1118,82 @@ dash.calc('serie_periodo', {
       return tr;
     }));
   }
+
+  // ---------- Excel export (only where the page may download files: the public site loads SheetJS) ----------
+  const COLS = {
+    nome: 'Nome', grupo: 'Código', tipo: 'Tipo', controladora: 'Controladora', mes: 'Mês', periodo: 'Período', meses: 'Meses',
+    parcial: 'Mês parcial', completo: 'Período completo', janela: 'Janela 12m', ultimo_mes: 'Último mês fechado', dados_ate: 'Dados até',
+    fonte_nome: 'Fonte', submercado_nome: 'Submercado', uf: 'UF', estado: 'Estado',
+    potencial_mwh: 'Potencial (MWh)', geracao_mwh: 'Gerado (MWh)', cortado_mwh: 'Cortado (MWh)', ene_mwh: 'Energética (MWh)',
+    cnf_mwh: 'Confiabilidade (MWh)', rel_mwh: 'Indisp. externa (MWh)', par_mwh: 'Parecer de acesso (MWh)', local_mwh: 'Origem local (MWh)',
+    potencial_gwh: 'Potencial (GWh)', geracao_gwh: 'Gerado (GWh)', cortado_gwh: 'Cortado (GWh)', ene_gwh: 'Energética (GWh)',
+    cnf_gwh: 'Confiabilidade (GWh)', rel_gwh: 'Indisp. externa (GWh)', par_gwh: 'Parecer de acesso (GWh)', local_gwh: 'Origem local (GWh)',
+    cortado_ultimo_mes_gwh: 'Cortado no último mês (GWh)',
+    pct_cortado: '% cortado', pct_12m: '% cortado 12m', pct_ene: '% energética', pct_cnf: '% confiabilidade', pct_rel: '% indisp. externa',
+    pct_local: '% origem local', pct_12m_anterior: '% cortado 12m anteriores', delta_pp: 'Variação (p.p.)', tendencia_pp_mes: 'Tendência (p.p./mês)',
+    pct_ultimo_mes: '% último mês fechado', percentil_pares: 'Percentil entre pares', n_pares: 'Nº de pares', mediana_pares: 'Mediana dos pares (%)',
+    pct_ref_fonte_sin: '% fonte no SIN', spread_fonte_sin_pp: 'Dif. vs fonte no SIN (p.p.)', pct_ref_fonte_sub: '% fonte no submercado',
+    spread_fonte_sub_pp: 'Dif. vs fonte no submercado (p.p.)', pct_ref_sub: '% submercado', spread_sub_pp: 'Dif. vs submercado (p.p.)',
+    correl_fonte_sub: 'Correlação mensal c/ fonte no submercado',
+  };
+  const TXTCOLS = new Set(['nome', 'grupo', 'tipo', 'controladora', 'mes', 'periodo', 'parcial', 'completo', 'janela', 'ultimo_mes', 'dados_ate', 'fonte_nome', 'submercado_nome', 'uf', 'estado']);
+  const sheet = (rows, cols) => {
+    const ws = window.XLSX.utils.json_to_sheet(rows.map((r) => Object.fromEntries(cols.map((c) => {
+      const v = r[c];
+      return [COLS[c] || c, TXTCOLS.has(c) ? (v ?? '') : (v === '' || v == null ? null : Number(v))];
+    }))));
+    ws['!cols'] = cols.map((c) => ({ wch: Math.max(10, Math.min(40, (COLS[c] || c).length + 2, ...rows.slice(0, 200).map((r) => String(r[c] ?? '').length + 2))) }));
+    return ws;
+  };
+  const leiame = (titulo, extra) => window.XLSX.utils.aoa_to_sheet([
+    [titulo], [],
+    ['Fonte', 'ONS Dados Abertos: Restrição de Operação por Constrained-off de Usinas Eólicas e Fotovoltaicas (por conjunto e detalhamento por usina)'],
+    ['Energia cortada', 'Campo val_geracaonaorealizadaapurada do ONS (MWmed × 0,5 h por meia hora)'],
+    ['Geração potencial', 'Gerado + cortado'],
+    ['Motivos', 'Energética (ENE), confiabilidade elétrica (CNF), indisponibilidade externa (REL), parecer de acesso (PAR)'],
+    ['Método completo', 'https://github.com/Rafaelcreditovinland/Controle-curtailment'],
+    ...extra,
+  ]);
+  const save = (wb, nome) => {
+    const ate = (dash.data('resumo_12m').data[0] || {}).dados_ate || '';
+    window.XLSX.writeFile(wb, nome + (ate ? '_dados_ate_' + ate.replace(/\//g, '-') : '') + '.xlsx');
+  };
+  function exportSistema() {
+    const T = dash.data('sistema_12m').data, M = dash.data('sin_mensal').data, U = dash.data('uf_12m').data;
+    const wb = window.XLSX.utils.book_new();
+    const t0 = T[0] || {};
+    window.XLSX.utils.book_append_sheet(wb, leiame('Visão Geral - Curtailment', [['Janela 12m', t0.janela || ''], ['Dados até', t0.dados_ate || ''], ['Escopo', 'Todas as eólicas e solares despachadas pelo ONS; solar a partir de abr/24']]), 'Leia-me');
+    window.XLSX.utils.book_append_sheet(wb, sheet(T, ['fonte_nome', 'submercado_nome', 'janela', 'potencial_gwh', 'cortado_gwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'ultimo_mes', 'cortado_ultimo_mes_gwh', 'pct_ultimo_mes']), 'Resumo 12m');
+    window.XLSX.utils.book_append_sheet(wb, sheet(M, ['fonte_nome', 'submercado_nome', 'mes', 'parcial', 'potencial_gwh', 'geracao_gwh', 'cortado_gwh', 'ene_gwh', 'cnf_gwh', 'rel_gwh', 'par_gwh', 'local_gwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local']), 'Mensal');
+    window.XLSX.utils.book_append_sheet(wb, sheet(U.slice().sort((a, b) => (a.fonte_nome + a.estado).localeCompare(b.fonte_nome + b.estado)), ['fonte_nome', 'uf', 'estado', 'potencial_gwh', 'cortado_gwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local']), 'Estados 12m');
+    save(wb, 'curtailment_visao_geral');
+  }
+  function exportProjetos() {
+    const R = dash.data('resumo_12m').data, S = dash.data('serie_mensal').data, Pd = dash.data('serie_periodo').data;
+    const nomes = Object.fromEntries(R.map((r) => [r.grupo, r.nome]));
+    const wb = window.XLSX.utils.book_new();
+    const r0 = R[0] || {};
+    window.XLSX.utils.book_append_sheet(wb, leiame('Projetos Renováveis', [['Janela 12m', r0.janela || ''], ['Dados até', r0.dados_ate || ''], ['Referências', 'Médias ponderadas da fonte e do submercado, excluindo os conjuntos ONS dos ativos']]), 'Leia-me');
+    window.XLSX.utils.book_append_sheet(wb, sheet(R.filter((r) => r.tipo === 'complexo').map((r) => ({ ...r, controladora: r.controladora ? (nomes[r.controladora] || r.controladora) : '' })), ['nome', 'controladora', 'janela', 'potencial_gwh', 'cortado_gwh', 'pct_12m', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'tendencia_pp_mes', 'ultimo_mes', 'pct_ultimo_mes', 'pct_ref_fonte_sin', 'spread_fonte_sin_pp', 'pct_ref_fonte_sub', 'spread_fonte_sub_pp', 'pct_ref_sub', 'spread_sub_pp', 'correl_fonte_sub', 'percentil_pares', 'n_pares', 'mediana_pares']), 'Resumo 12m');
+    const mens = S.filter((r) => r.tipo === 'complexo').map((r) => ({ ...r, nome: nomes[r.grupo] || r.nome }));
+    window.XLSX.utils.book_append_sheet(wb, sheet(mens, ['nome', 'mes', 'parcial', 'potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh', 'par_mwh', 'local_mwh', 'pct_cortado', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m']), 'Mensal');
+    ['semestral', 'anual'].forEach((tp) => {
+      const rows = Pd.filter((r) => r.tipo === tp).map((r) => ({ ...r, nome: nomes[r.grupo] || r.grupo })).sort((a, b) => (a.nome + a.periodo).localeCompare(b.nome + b.periodo));
+      window.XLSX.utils.book_append_sheet(wb, sheet(rows, ['nome', 'periodo', 'meses', 'completo', 'potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh', 'pct_cortado']), tp === 'semestral' ? 'Semestral' : 'Anual');
+    });
+    const refs = S.filter((r) => r.tipo === 'referencia');
+    window.XLSX.utils.book_append_sheet(wb, sheet(refs, ['nome', 'mes', 'parcial', 'potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh', 'pct_cortado', 'pct_12m']), 'Referências mensal');
+    save(wb, 'curtailment_projetos_renovaveis');
+  }
+  const canExport = !!window.XLSX;
+  [['exp-sistema', exportSistema, ['sistema_12m', 'sin_mensal', 'uf_12m', 'resumo_12m']], ['exp-projetos', exportProjetos, ['resumo_12m', 'serie_mensal', 'serie_periodo']]].forEach(([id, fn, deps]) => {
+    const b = document.getElementById(id);
+    b.hidden = !canExport;
+    b.addEventListener('click', () => {
+      if (deps.some((d) => dash.data(d).status !== 'ok')) { b.textContent = 'Aguarde os dados carregarem'; setTimeout(() => { b.textContent = 'Exportar Excel'; }, 2000); return; }
+      try { fn(); } catch (e) { console.error(e); b.textContent = 'Não foi possível exportar'; setTimeout(() => { b.textContent = 'Exportar Excel'; }, 3000); }
+    });
+  });
 
   function draw() {
     const R = dash.data('resumo_12m');

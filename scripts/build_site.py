@@ -60,6 +60,7 @@ HEAD = """<!doctype html>
   [hidden] { display: none !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   // Minimal stand-in for the Claude Dashboard runtime: loads ./data/<id>.csv as rows of text.
   (() => {
