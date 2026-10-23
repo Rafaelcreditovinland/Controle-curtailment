@@ -76,9 +76,21 @@ HEAD = """<!doctype html>
         .catch((e) => { store[id] = { status: 'error', data: [], columns: [], message: String(e) }; run(); });
       return store[id];
     };
+    const calcs = {}, memo = {};
+    const calcData = (id) => {
+      const c = calcs[id], ins = c.inputs.map((i) => window.dash.data(i));
+      const bad = ins.find((x) => x.status !== 'ok');
+      if (bad) return { status: bad.status, data: [], columns: [] };
+      if (!memo[id] || memo[id].ins.some((x, i) => x !== ins[i].data)) {
+        const out = c.fn(...ins.map((x) => x.data));
+        memo[id] = { ins: ins.map((x) => x.data), res: { status: 'ok', data: out, columns: Object.keys(out[0] || {}) } };
+      }
+      return memo[id].res;
+    };
     window.dash = {
       get colors() { return [css('--k1'), css('--k2'), css('--k3')]; },
-      data: (id) => load(id),
+      data: (id) => (calcs[id] ? calcData(id) : load(id)),
+      calc: (id, def) => { calcs[id] = def; },
       onData: (fn) => { subs.push(fn); fn(); },
       setLink: (name) => { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
       params: () => ({}), setParams: () => {}, resetParams: () => {}, refresh: () => {},

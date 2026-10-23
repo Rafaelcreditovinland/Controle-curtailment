@@ -13,7 +13,7 @@
   .cx-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
   .cx-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.45; }
   .cx-chip { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-  .cx-pill { display: inline-block; font-size: var(--cds-font-size-caption); padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+  .cx-pill { white-space: nowrap; display: inline-block; font-size: var(--cds-font-size-caption); padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
   .cx-pill.up { color: var(--color-bad); }
   .cx-pill.down { color: var(--color-ok); }
   .cx-big { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: calc(var(--cds-font-size-title) * 1.6); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -51,7 +51,11 @@
   .cx-map path.uf:hover { stroke: var(--color-fg); stroke-width: 1.5; }
   .cx-ramp { display: flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .cx-ramp .bar { flex: 1; max-width: 220px; height: 10px; border-radius: 5px; }
-  .cx-pickers { display: grid; gap: var(--cds-gap-sm); }
+  .cx-pickcard { cursor: pointer; transition: border-color var(--cds-dur-slow), box-shadow var(--cds-dur-slow); }
+  .cx-pickcard:hover { border-color: var(--color-fg-muted); }
+  .cx-pickcard[aria-pressed="true"] { border-color: var(--color-fg); box-shadow: 0 0 0 1px var(--color-fg); }
+  .cx-pickcard:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .cx-detail > h2 { margin: var(--cds-gap-sm) 0 0; font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); }
   .cx-subpick { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm); padding: var(--cds-pad-sm) var(--cds-pad-md); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); }
   .cx-subpick[hidden] { display: none; }
   .cx-chart { position: relative; min-height: 280px; }
@@ -83,10 +87,8 @@
   <nav class="cx-tabs" role="tablist" aria-label="Seções">
     <button class="cx-tab" role="tab" id="tab-sistema" data-tab="sistema" aria-selected="true">Visão Geral - Curtailment</button>
     <button class="cx-tab" role="tab" id="tab-geral" data-tab="geral" aria-selected="false">Projetos Renováveis</button>
-    <button class="cx-tab" role="tab" id="tab-mensal" data-tab="mensal" aria-selected="false">Mês a mês</button>
     <button class="cx-tab" role="tab" id="tab-pares" data-tab="pares" aria-selected="false">Pares</button>
-    <button class="cx-tab" role="tab" id="tab-usinas" data-tab="usinas" aria-selected="false">Usinas mapeadas</button>
-    <button class="cx-tab" role="tab" id="tab-metodo" data-tab="metodo" aria-selected="false">Método e fontes</button>
+    <button class="cx-tab" role="tab" id="tab-usinas" data-tab="usinas" aria-selected="false">Usinas mapeadas e fontes</button>
   </nav>
 
   <!-- ============ VISÃO GERAL - CURTAILMENT ============ -->
@@ -173,8 +175,9 @@
 
   <!-- ============ VISÃO GERAL ============ -->
   <section class="cx-section" id="geral" data-panel="geral" hidden>
+    <p class="cx-note">Clique em um projeto para ver o detalhe, os gráficos e a tabela histórica.</p>
     <div class="cx-grid" id="cards">
-      <article class="cx-card" id="card-assurua" data-g="assurua">
+      <article class="cx-card cx-pickcard" id="card-assurua" data-g="assurua" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
           <h3>Assuruá 4 e 5</h3>
           <span class="cx-pill" data-pill></span>
@@ -191,19 +194,9 @@
           <span><i style="background: var(--k-cnf)"></i>Confiabilidade <b data-source="resumo_12m" data-field="pct_cnf" data-where="grupo=assurua">—</b></span>
           <span><i style="background: var(--k-rel)"></i>Indisp. externa <b data-source="resumo_12m" data-field="pct_rel" data-where="grupo=assurua">—</b></span>
         </div>
-        <dl class="cx-kv">
-          <dt>Energia cortada</dt><dd data-source="resumo_12m" data-field="cortado_gwh" data-where="grupo=assurua">—</dd>
-          <dt>Geração potencial</dt><dd data-source="resumo_12m" data-field="potencial_gwh" data-where="grupo=assurua">—</dd>
-          <dt>Eólica Nordeste (ex-ativos)</dt><dd data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-where="grupo=assurua">—</dd>
-          <dt>Diferença vs eólica NE</dt><dd data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-where="grupo=assurua">—</dd>
-          <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=assurua">—</dd>
-          <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=assurua">—</dd>
-          <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=assurua">—</dd>
-          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=assurua">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=assurua">—</dd>
-        </dl>
       </article>
 
-      <article class="cx-card" id="card-luizcarlos" data-g="luizcarlos">
+      <article class="cx-card cx-pickcard" id="card-luizcarlos" data-g="luizcarlos" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
           <h3>Luiz Carlos</h3>
           <span class="cx-pill" data-pill></span>
@@ -220,19 +213,9 @@
           <span><i style="background: var(--k-cnf)"></i>Confiabilidade <b data-source="resumo_12m" data-field="pct_cnf" data-where="grupo=luizcarlos">—</b></span>
           <span><i style="background: var(--k-rel)"></i>Indisp. externa <b data-source="resumo_12m" data-field="pct_rel" data-where="grupo=luizcarlos">—</b></span>
         </div>
-        <dl class="cx-kv">
-          <dt>Energia cortada</dt><dd data-source="resumo_12m" data-field="cortado_gwh" data-where="grupo=luizcarlos">—</dd>
-          <dt>Geração potencial</dt><dd data-source="resumo_12m" data-field="potencial_gwh" data-where="grupo=luizcarlos">—</dd>
-          <dt>Solar SE/CO (ex-ativos)</dt><dd data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-where="grupo=luizcarlos">—</dd>
-          <dt>Diferença vs solar SE/CO</dt><dd data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-where="grupo=luizcarlos">—</dd>
-          <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=luizcarlos">—</dd>
-          <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=luizcarlos">—</dd>
-          <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=luizcarlos">—</dd>
-          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=luizcarlos">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=luizcarlos">—</dd>
-        </dl>
       </article>
 
-      <article class="cx-card" id="card-serido" data-g="serido">
+      <article class="cx-card cx-pickcard" id="card-serido" data-g="serido" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
           <h3>Serra do Seridó</h3>
           <span class="cx-pill" data-pill></span>
@@ -249,19 +232,9 @@
           <span><i style="background: var(--k-cnf)"></i>Confiabilidade <b data-source="resumo_12m" data-field="pct_cnf" data-where="grupo=serido">—</b></span>
           <span><i style="background: var(--k-rel)"></i>Indisp. externa <b data-source="resumo_12m" data-field="pct_rel" data-where="grupo=serido">—</b></span>
         </div>
-        <dl class="cx-kv">
-          <dt>Energia cortada</dt><dd data-source="resumo_12m" data-field="cortado_gwh" data-where="grupo=serido">—</dd>
-          <dt>Geração potencial</dt><dd data-source="resumo_12m" data-field="potencial_gwh" data-where="grupo=serido">—</dd>
-          <dt>Eólica Nordeste (ex-ativos)</dt><dd data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-where="grupo=serido">—</dd>
-          <dt>Diferença vs eólica NE</dt><dd data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-where="grupo=serido">—</dd>
-          <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=serido">—</dd>
-          <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=serido">—</dd>
-          <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=serido">—</dd>
-          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=serido">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=serido">—</dd>
-        </dl>
       </article>
 
-      <article class="cx-card" id="card-mirante" data-g="mirante">
+      <article class="cx-card cx-pickcard" id="card-mirante" data-g="mirante" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
           <h3>Oeste Seridó (Mirante)</h3>
           <span class="cx-pill" data-pill></span>
@@ -278,19 +251,9 @@
           <span><i style="background: var(--k-cnf)"></i>Confiabilidade <b data-source="resumo_12m" data-field="pct_cnf" data-where="grupo=mirante">—</b></span>
           <span><i style="background: var(--k-rel)"></i>Indisp. externa <b data-source="resumo_12m" data-field="pct_rel" data-where="grupo=mirante">—</b></span>
         </div>
-        <dl class="cx-kv">
-          <dt>Energia cortada</dt><dd data-source="resumo_12m" data-field="cortado_gwh" data-where="grupo=mirante">—</dd>
-          <dt>Geração potencial</dt><dd data-source="resumo_12m" data-field="potencial_gwh" data-where="grupo=mirante">—</dd>
-          <dt>Eólica Nordeste (ex-ativos)</dt><dd data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-where="grupo=mirante">—</dd>
-          <dt>Diferença vs eólica NE</dt><dd data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-where="grupo=mirante">—</dd>
-          <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=mirante">—</dd>
-          <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=mirante">—</dd>
-          <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=mirante">—</dd>
-          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=mirante">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=mirante">—</dd>
-        </dl>
       </article>
 
-      <article class="cx-card" id="card-tupi" data-g="tupi">
+      <article class="cx-card cx-pickcard" id="card-tupi" data-g="tupi" role="button" tabindex="0" aria-pressed="false">
         <div class="cx-row" style="justify-content: space-between;">
           <h3>Tupi (Ibitu), consolidado</h3>
           <span class="cx-pill" data-pill></span>
@@ -307,96 +270,22 @@
           <span><i style="background: var(--k-cnf)"></i>Confiabilidade <b data-source="resumo_12m" data-field="pct_cnf" data-where="grupo=tupi">—</b></span>
           <span><i style="background: var(--k-rel)"></i>Indisp. externa <b data-source="resumo_12m" data-field="pct_rel" data-where="grupo=tupi">—</b></span>
         </div>
-        <dl class="cx-kv">
-          <dt>Energia cortada</dt><dd data-source="resumo_12m" data-field="cortado_gwh" data-where="grupo=tupi">—</dd>
-          <dt>Geração potencial</dt><dd data-source="resumo_12m" data-field="potencial_gwh" data-where="grupo=tupi">—</dd>
-          <dt>Eólica Nordeste (ex-ativos)</dt><dd data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-where="grupo=tupi">—</dd>
-          <dt>Diferença vs eólica NE</dt><dd data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-where="grupo=tupi">—</dd>
-          <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=tupi">—</dd>
-          <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=tupi">—</dd>
-          <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=tupi">—</dd>
-          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=tupi">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=tupi">—</dd>
-        </dl>
       </article>
     </div>
-
-    <article class="cx-card" id="tupi-abertura">
-      <h3>Abertura por complexo, últimos 12 meses fechados</h3>
-      <p class="cx-note">Empresas com mais de um complexo: consolidado e cada complexo. Icaraí e Amontada (Tupi) estão no mesmo conjunto ONS; a parte de cada um é rateada por usina (ver Método).</p>
-      <div class="cx-tablewrap">
-        <table class="cx-table" id="tbl-tupi" data-source="resumo_12m" data-row-key="grupo">
-          <thead><tr>
-            <th data-field="nome">Complexo</th>
-            <th data-field="potencial_gwh">Potencial (GWh)</th>
-            <th data-field="cortado_gwh">Cortado (GWh)</th>
-            <th data-field="pct_12m">% cortado</th>
-            <th data-field="pct_ene">Energética</th>
-            <th data-field="pct_cnf">Confiab.</th>
-            <th data-field="pct_rel">Indisp. ext.</th>
-            <th data-field="pct_local">Origem local</th>
-            <th data-field="pct_12m_anterior">12m anterior</th>
-            <th data-field="delta_pp">Δ p.p.</th>
-            <th data-field="pct_ultimo_mes">Último mês</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </article>
-
-    <article class="cx-card" id="ativo-vs-sistema">
-      <h3>Ativo × sistema, últimos 12 meses fechados</h3>
-      <p class="cx-note">% cortado do complexo contra a média ponderada da fonte no SIN, da fonte no submercado e do submercado inteiro (eólica + solar). As referências excluem o conjunto ONS onde o ativo está. Diferença positiva (vermelho) indica corte acima do sistema; correlação alta com a fonte no submercado indica que o corte acompanha o sistema.</p>
-      <div class="cx-tablewrap">
-        <table class="cx-table" id="tbl-spread" data-source="resumo_12m" data-row-key="grupo">
-          <thead><tr>
-            <th data-field="nome">Complexo</th>
-            <th data-field="pct_12m">Ativo</th>
-            <th data-field="pct_ref_fonte_sin">Fonte · SIN</th>
-            <th data-field="spread_fonte_sin_pp">Dif. (p.p.)</th>
-            <th data-field="pct_ref_fonte_sub">Fonte · submercado</th>
-            <th data-field="spread_fonte_sub_pp">Dif. (p.p.)</th>
-            <th data-field="pct_ref_sub">Submercado</th>
-            <th data-field="spread_sub_pp">Dif. (p.p.)</th>
-            <th data-field="pct_local">Origem local</th>
-            <th data-field="correl_fonte_sub">Correl. mensal</th>
-            <th data-field="percentil_pares">Percentil</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </article>
-
-    <article class="cx-card" id="motivos-ref">
-      <h3>Referências por motivo, últimos 12 meses fechados</h3>
-      <p class="cx-note">Composição do corte no sistema, para comparar com o mix de cada complexo acima.</p>
-      <div class="cx-tablewrap">
-        <table class="cx-table" id="tbl-ref" data-source="resumo_12m" data-row-key="grupo">
-          <thead><tr>
-            <th data-field="nome">Referência</th>
-            <th data-field="potencial_gwh">Potencial (GWh)</th>
-            <th data-field="cortado_gwh">Cortado (GWh)</th>
-            <th data-field="pct_12m">% cortado</th>
-            <th data-field="pct_ene">Energética</th>
-            <th data-field="pct_cnf">Confiab.</th>
-            <th data-field="pct_rel">Indisp. ext.</th>
-            <th data-field="pct_12m_anterior">12m anterior</th>
-            <th data-field="delta_pp">Δ p.p.</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </article>
-  </section>
-
-  <!-- ============ MÊS A MÊS ============ -->
-  <section class="cx-section" id="mensal" data-panel="mensal" hidden>
-    <div class="cx-pickers" data-source="resumo_12m">
-      <div class="cx-seg" role="group" aria-label="Empresa ou complexo" id="pick"></div>
-      <div class="cx-subpick" id="subpick" hidden>
-        <span class="cx-note" id="subpick-label">Visualizar</span>
-        <div class="cx-seg" role="group" aria-label="Visualização" id="subpick-seg"></div>
-      </div>
+    <div class="cx-subpick" id="subpick" data-source="resumo_12m" hidden>
+      <span class="cx-note" id="subpick-label">Visualizar</span>
+      <div class="cx-seg" role="group" aria-label="Visualização" id="subpick-seg"></div>
     </div>
+
+    <div class="cx-section cx-detail" id="detalhe">
+      <h2 id="det-titulo">—</h2>
+      <div class="cx-tiles" id="det-tiles">
+        <div class="cx-tile"><span class="cx-note">Energia cortada, 12 meses</span><span class="cx-big"><span data-source="resumo_12m" data-field="cortado_gwh" data-det>—</span></span><span class="cx-note">de <span data-source="resumo_12m" data-field="potencial_gwh" data-det>—</span> de geração potencial</span></div>
+        <div class="cx-tile"><span class="cx-note" id="det-ref-label">Fonte no submercado (ex-ativos)</span><span class="cx-big"><span data-source="resumo_12m" data-field="pct_ref_fonte_sub" data-det>—</span></span><span class="cx-note">diferença do projeto: <span data-source="resumo_12m" data-field="spread_fonte_sub_pp" data-det>—</span></span></div>
+        <div class="cx-tile"><span class="cx-note">Percentil entre pares</span><span class="cx-big"><span data-source="resumo_12m" data-field="percentil_pares" data-det>—</span></span><span class="cx-note">correlação mensal com a fonte no submercado: <span data-source="resumo_12m" data-field="correl_fonte_sub" data-det>—</span></span></div>
+        <div class="cx-tile"><span class="cx-note">Origem local (rede)</span><span class="cx-big"><span data-source="resumo_12m" data-field="pct_local" data-det>—</span></span><span class="cx-note">do potencial, restrições da rede local</span></div>
+        <div class="cx-tile"><span class="cx-note">Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-det>—</span>)</span><span class="cx-big"><span data-source="resumo_12m" data-field="pct_ultimo_mes" data-det>—</span></span><span class="cx-note">tendência 12m: <span data-source="resumo_12m" data-field="tendencia_pp_mes" data-det>—</span></span></div>
+      </div>
     <article class="cx-card" id="chart-mensal-card">
       <h3>% da geração potencial cortada, por mês e motivo</h3>
       <p class="cx-note">Barras: complexo, empilhado por motivo. Linha cheia: mesma fonte no submercado. Tracejada: fonte no SIN. O mês em andamento aparece mais claro (parcial).</p>
@@ -408,28 +297,38 @@
       <p class="cx-note">Corte acumulado de 12 meses sobre potencial acumulado de 12 meses, a cada mês fechado.</p>
       <div class="cx-chart short" id="chart-12m" data-source="serie_mensal"></div>
     </article>
-    <article class="cx-card" id="tabela-mensal-card">
-      <h3>Tabela mensal</h3>
-      <p class="cx-note">MWh (MWmed × 0,5 h somado por meia hora). Potencial = gerado + cortado.</p>
-      <div class="cx-tablewrap">
-        <table class="cx-table" id="tbl-mensal" data-source="serie_mensal" data-row-key="grupo,mes">
-          <thead><tr>
-            <th data-field="mes">Mês</th>
-            <th data-field="potencial_mwh">Potencial</th>
-            <th data-field="geracao_mwh">Gerado</th>
-            <th data-field="cortado_mwh">Cortado</th>
-            <th data-field="ene_mwh">Energética</th>
-            <th data-field="cnf_mwh">Confiab.</th>
-            <th data-field="rel_mwh">Indisp. ext.</th>
-            <th data-field="pct_cortado">% cortado</th>
-            <th data-field="pct_12m">% 12m</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </article>
+      <article class="cx-card" id="tabela-mensal-card">
+        <div class="cx-row" style="justify-content: space-between;">
+          <h3 id="tbl-periodo-titulo">Histórico</h3>
+          <div class="cx-seg" role="group" aria-label="Período" id="periodo">
+            <button data-p="mensal" aria-pressed="true">Mensal</button>
+            <button data-p="semestral" aria-pressed="false">Semestral</button>
+            <button data-p="anual" aria-pressed="false">Anual</button>
+          </div>
+        </div>
+        <p class="cx-note">MWh (MWmed × 0,5 h somado por meia hora). Potencial = gerado + cortado. Semestre e ano somam os meses disponíveis; períodos incompletos aparecem em itálico.</p>
+        <div class="cx-tablewrap">
+          <table class="cx-table" id="tbl-mensal" data-source="serie_periodo" data-row-key="chave">
+            <thead><tr>
+              <th data-field="periodo">Período</th>
+              <th data-field="meses">Meses</th>
+              <th data-field="potencial_mwh">Potencial</th>
+              <th data-field="geracao_mwh">Gerado</th>
+              <th data-field="cortado_mwh">Cortado</th>
+              <th data-field="ene_mwh">Energética</th>
+              <th data-field="cnf_mwh">Confiab.</th>
+              <th data-field="rel_mwh">Indisp. ext.</th>
+              <th data-field="pct_cortado">% cortado</th>
+              <th data-field="pct_12m" id="th-12m">% 12m</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </article>
+    </div>
   </section>
 
+  
   <!-- ============ PARES ============ -->
   <section class="cx-section" id="pares" data-panel="pares" hidden>
     <article class="cx-card" id="pares-eol">
@@ -480,7 +379,7 @@
   </section>
 
   <!-- ============ MÉTODO ============ -->
-  <section class="cx-section" id="metodo" data-panel="metodo" hidden>
+  <section class="cx-section" id="metodo" data-panel="usinas" hidden>
     <article class="cx-card cx-method">
       <h3>Fontes</h3>
       <ul>
@@ -561,8 +460,7 @@
       b.addEventListener('click', cb);
       return b;
     };
-    document.getElementById('pick').replaceChildren(...cx.filter((r) => !r.controladora).map((r) =>
-      mk(r, r.grupo === top, short(r.nome) + (kids(r.grupo).length ? ' ▾' : ''), () => { top = r.grupo; pick = r.grupo; draw(); })));
+    document.querySelectorAll('#cards .cx-pickcard').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.g === top)));
     const ch = kids(top);
     const sub = document.getElementById('subpick');
     sub.hidden = !ch.length;
@@ -573,6 +471,44 @@
         ...ch.map((r) => mk(r, pick === r.grupo, short(r.nome), () => { pick = r.grupo; draw(); })));
     }
   }
+
+  const choose = (g) => { if (g !== top) { top = g; pick = g; draw(); } };
+  document.querySelectorAll('#cards .cx-pickcard').forEach((c) => {
+    c.addEventListener('click', () => choose(c.dataset.g));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(c.dataset.g); } });
+  });
+  let periodo = 'mensal';
+  document.querySelectorAll('#periodo button').forEach((b) => b.addEventListener('click', () => {
+    periodo = b.dataset.p;
+    document.querySelectorAll('#periodo button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    draw();
+  }));
+
+  // Monthly rows rolled up to semesters and calendar years; a period is complete with 6 or 12 closed months.
+  dash.calc('serie_periodo', {
+    inputs: ['serie_mensal'],
+    title: 'Histórico por mês, semestre e ano',
+    description: 'Soma os MWh mensais de cada complexo por semestre e por ano e recalcula o % cortado sobre o potencial do período.',
+    fn: (serie_mensal) => {
+      const acc = new Map();
+      const keys = ['potencial_mwh', 'geracao_mwh', 'cortado_mwh', 'ene_mwh', 'cnf_mwh', 'rel_mwh'];
+      serie_mensal.filter((r) => r.tipo === 'complexo').forEach((r) => {
+        const mo = +r.mes.slice(5, 7);
+        [['mensal', r.mes], ['semestral', r.mes.slice(0, 4) + '-S' + (mo <= 6 ? 1 : 2)], ['anual', r.mes.slice(0, 4)]].forEach(([tipo, periodo]) => {
+          const k = r.grupo + '|' + tipo + '|' + periodo;
+          if (!acc.has(k)) acc.set(k, { chave: k, grupo: r.grupo, tipo, periodo, meses: 0, parcial: 'não', pct_12m: tipo === 'mensal' ? r.pct_12m : '', ...Object.fromEntries(keys.map((x) => [x, 0])) });
+          const a = acc.get(k);
+          keys.forEach((x) => { a[x] += Number(r[x]) || 0; });
+          if (r.parcial === 'sim') a.parcial = 'sim'; else a.meses += 1;
+        });
+      });
+      return [...acc.values()].map((a) => {
+        const full = a.tipo === 'mensal' ? 1 : a.tipo === 'semestral' ? 6 : 12;
+        const pot = a.potencial_mwh;
+        return { ...a, completo: a.meses >= full && a.parcial === 'não' ? 'sim' : 'não', pct_cortado: pot ? Math.round(10000 * a.cortado_mwh / pot) / 100 : null };
+      });
+    },
+  });
 
   const fail = (el, st) => {
     if (st === 'error' || st === 'connect') { el.replaceChildren(); const d = document.createElement('div'); d.className = 'cx-fail'; d.textContent = 'Failed to load'; el.append(d); return true; }
@@ -639,7 +575,7 @@
   function drawOverview(R) {
     const by = Object.fromEntries(R.map((r) => [r.grupo, r]));
     drawTakeaway(R, by);
-    document.querySelectorAll('#geral [data-source="resumo_12m"][data-field], .cx-head [data-field]').forEach((el) => {
+    document.querySelectorAll('#cards [data-source="resumo_12m"][data-field], .cx-head [data-field]').forEach((el) => {
       const g = new URLSearchParams(el.dataset.where).get('grupo');
       if (TEXT.has(el.dataset.field)) { el.textContent = by[g]?.[el.dataset.field] || '—'; return; }
       const v = num(by[g]?.[el.dataset.field]);
@@ -663,58 +599,26 @@
       }));
       const sp = num(r.spread_fonte_sub_pp);
       const pill = card.querySelector('[data-pill]');
-      pill.textContent = sp > 0 ? 'Acima da fonte no submercado' : 'Abaixo da fonte no submercado';
+      pill.textContent = sp > 0 ? 'Acima da média' : 'Abaixo da média';
+      pill.title = (sp > 0 ? 'Acima' : 'Abaixo') + ' da média da própria fonte no submercado, nos mesmos 12 meses';
       pill.className = 'cx-pill ' + (sp > 0 ? 'up' : 'down');
     });
-
-    const tb = document.querySelector('#tbl-spread tbody');
-    const cols = ['nome', 'pct_12m', 'pct_ref_fonte_sin', 'spread_fonte_sin_pp', 'pct_ref_fonte_sub', 'spread_fonte_sub_pp', 'pct_ref_sub', 'spread_sub_pp', 'pct_local', 'correl_fonte_sub', 'percentil_pares'];
-    tb.replaceChildren(...R.filter((r) => r.tipo === 'complexo' && !r.controladora).map((r) => {
-      const tr = document.createElement('tr');
-      tr.dataset.key = r.grupo;
-      cols.forEach((c) => {
-        const td = document.createElement('td');
-        const v = c === 'nome' ? r.nome : num(r[c]);
-        td.textContent = c === 'nome' ? v : v == null ? '—' : (FMT[c] || nf1.format)(v);
-        if (/spread/.test(c) && v != null) td.className = v > 0 ? 'pos' : 'neg';
-        tr.append(td);
-      });
-      return tr;
-    }));
-
-    const tr2 = document.querySelector('#tbl-ref tbody');
-    const cols2 = ['nome', 'potencial_gwh', 'cortado_gwh', 'pct_12m', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_12m_anterior', 'delta_pp'];
-    tr2.replaceChildren(...R.filter((r) => r.tipo === 'referencia').map((r) => {
-      const tr = document.createElement('tr');
-      tr.dataset.key = r.grupo;
-      cols2.forEach((c) => {
-        const td = document.createElement('td');
-        const v = c === 'nome' ? r.nome : num(r[c]);
-        td.textContent = c === 'nome' ? v : v == null ? '—' : /gwh/.test(c) ? nf0.format(v) : (FMT[c] || nf1.format)(v);
-        if (c === 'delta_pp' && v != null) td.className = v > 0 ? 'pos' : 'neg';
-        tr.append(td);
-      });
-      return tr;
-    }));
   }
 
-  function drawTupi(R) {
-    const tb = document.querySelector('#tbl-tupi tbody');
-    const cols = ['nome', 'potencial_gwh', 'cortado_gwh', 'pct_12m', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'pct_ultimo_mes'];
-    const parents = [...new Set(R.map((r) => r.controladora).filter(Boolean))];
-    tb.replaceChildren(...parents.flatMap((p) => [R.find((r) => r.grupo === p), ...R.filter((r) => r.controladora === p)]).filter(Boolean).map((r) => {
-      const tr = document.createElement('tr');
-      tr.dataset.key = r.grupo;
-      if (!r.controladora) tr.style.fontWeight = '600';
-      cols.forEach((c) => {
-        const td = document.createElement('td');
-        const v = c === 'nome' ? r.nome : num(r[c]);
-        td.textContent = c === 'nome' ? (r.controladora ? '\u2003' + v : v) : v == null ? '—' : /gwh/.test(c) ? nf1.format(v) : (FMT[c] || nf1.format)(v);
-        if (c === 'delta_pp' && v != null) td.className = v > 0 ? 'pos' : 'neg';
-        tr.append(td);
-      });
-      return tr;
-    }));
+  const REFLABEL = { EOL_NE: 'Eólica Nordeste (ex-ativos)', UFV_SE: 'Solar Sudeste/C-Oeste (ex-ativos)' };
+  function drawDetalhe(R) {
+    const r = R.find((x) => x.grupo === pick);
+    if (!r) return;
+    document.getElementById('det-titulo').textContent = r.nome;
+    document.getElementById('det-ref-label').textContent = REFLABEL[r.ref_fonte_sub] || 'Fonte no submercado (ex-ativos)';
+    document.querySelectorAll('#detalhe [data-det]').forEach((el) => {
+      el.dataset.where = 'grupo=' + pick;
+      const f = el.dataset.field;
+      if (TEXT.has(f)) { el.textContent = r[f] || '—'; return; }
+      const v = num(r[f]);
+      el.textContent = v == null ? '—' : (FMT[f] || nf1.format)(v);
+      el.style.color = /spread/.test(f) && v != null ? (v > 0 ? 'var(--color-bad)' : 'var(--color-ok)') : '';
+    });
   }
 
   // ---------- monthly ----------
@@ -824,15 +728,29 @@
         tip2.show(bx, by, '12 meses até ' + fmtMes(mes), series.map((s) => [s.c, s.n.split(' (')[0], pct(s.pts.find((p) => p.mes === mes)?.v ?? null)]));
       })
       .on('mouseleave', () => tip2.hide());
+  }
 
-    // table
+  const fmtPeriodo = (tipo, p) => tipo === 'mensal' ? fmtMes(p) : tipo === 'semestral' ? p.slice(-1) + 'º sem/' + p.slice(2, 4) : p;
+  function drawTabela(Pd) {
+    const rows = Pd.filter((r) => r.grupo === pick && r.tipo === periodo).sort((a, b) => (a.periodo < b.periodo ? 1 : -1));
+    document.getElementById('tbl-periodo-titulo').textContent = 'Histórico ' + { mensal: 'mensal', semestral: 'semestral', anual: 'anual' }[periodo];
+    const show12 = periodo === 'mensal';
+    document.getElementById('th-12m').hidden = !show12;
     const tb = document.querySelector('#tbl-mensal tbody');
-    tb.replaceChildren(...rows.slice().reverse().map((r) => {
+    tb.replaceChildren(...rows.map((r) => {
       const tr = document.createElement('tr');
-      tr.dataset.key = r.grupo + ',' + r.mes;
-      if (r.parcial === 'sim') tr.className = 'partial';
-      [['mes', (v) => r.mes], ['potencial_mwh', nf0.format], ['geracao_mwh', nf0.format], ['cortado_mwh', nf0.format], ['ene_mwh', nf0.format], ['cnf_mwh', nf0.format], ['rel_mwh', nf0.format], ['pct_cortado', pct], ['pct_12m', pct]]
-        .forEach(([c, f]) => { const td = document.createElement('td'); const v = c === 'mes' ? r.mes : num(r[c]); td.textContent = v == null ? '—' : f(v); tr.append(td); });
+      tr.dataset.key = r.chave;
+      if (r.completo !== 'sim') tr.className = 'partial';
+      const cells = [['periodo', () => fmtPeriodo(r.tipo, r.periodo)], ['meses', nf0.format], ['potencial_mwh', nf0.format], ['geracao_mwh', nf0.format], ['cortado_mwh', nf0.format],
+        ['ene_mwh', nf0.format], ['cnf_mwh', nf0.format], ['rel_mwh', nf0.format], ['pct_cortado', pct]];
+      if (show12) cells.push(['pct_12m', pct]);
+      cells.forEach(([c, f]) => {
+        const td = document.createElement('td');
+        const v = c === 'periodo' ? r.periodo : num(r[c]);
+        td.textContent = v == null ? '—' : f(v);
+        if (c === 'periodo' && r.parcial === 'sim') td.textContent += ' (parcial)';
+        tr.append(td);
+      });
       return tr;
     }));
   }
@@ -1087,18 +1005,18 @@
 
   function draw() {
     const R = dash.data('resumo_12m');
-    if (R.status === 'ok') { drawOverview(R.data); drawTupi(R.data); }
+    if (R.status === 'ok') drawOverview(R.data);
     if (tab === 'sistema') {
       const T = dash.data('sistema_12m'), M = dash.data('sin_mensal'), U = dash.data('uf_12m'), G = dash.data('mapa_uf');
       if (T.status === 'ok') drawSistemaTiles(T.data);
       if (M.status === 'ok') drawSistemaMensal(M.data); else ['chart-sis-gwh', 'chart-sis-pct'].forEach((id) => fail(document.getElementById(id), M.status));
       if (U.status === 'ok' && G.status === 'ok') drawMapa(U.data, G.data); else fail(document.getElementById('sis-mapa'), U.status === 'ok' ? G.status : U.status);
     }
-    if (tab === 'mensal') {
-      const S = dash.data('serie_mensal');
-      const boxes = ['chart-mensal', 'chart-12m'].map((id) => document.getElementById(id));
-      if (R.status === 'ok') drawPickers(R.data);
-      if (S.status === 'ok') drawMensal(S.data); else boxes.forEach((b) => fail(b, S.status));
+    if (tab === 'geral') {
+      const S = dash.data('serie_mensal'), Pd = dash.data('serie_periodo');
+      if (R.status === 'ok') { drawPickers(R.data); drawDetalhe(R.data); }
+      if (S.status === 'ok') drawMensal(S.data); else ['chart-mensal', 'chart-12m'].forEach((id) => fail(document.getElementById(id), S.status));
+      if (Pd.status === 'ok') drawTabela(Pd.data);
     }
     if (tab === 'pares') {
       const P = dash.data('pares_12m');
@@ -1112,7 +1030,7 @@
   }
 
   dash.onData(draw);
-  const named = location.hash.slice(1);
-  if (['sistema', 'geral', 'mensal', 'pares', 'usinas', 'metodo'].includes(named)) show(named, false);
+  const named = { mensal: 'geral', metodo: 'usinas' }[location.hash.slice(1)] || location.hash.slice(1);
+  if (['sistema', 'geral', 'pares', 'usinas'].includes(named)) show(named, false);
 })();
 </script>
