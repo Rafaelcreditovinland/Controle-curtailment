@@ -11,13 +11,15 @@ ONS Dados Abertos, `ons-aws-prod-opendata.s3.amazonaws.com/dataset/`:
 
 Eólica desde out/21; solar desde abr/24.
 
-## Como rodar
+## Site
+Publicado pelo GitHub Pages a partir de `docs/`: https://rafaelcreditovinland.github.io/Controle-curtailment/
+
+## Como atualizar
 ```sh
 pip install duckdb pyarrow numpy
-sh scripts/download.sh data/raw              # ~950 MB, fora do git
-python3 -I scripts/build.py data/raw data/processed/out.json
-python3 -I scripts/tables.py data/processed/out.json data/processed
+sh scripts/update.sh data/raw   # baixa (~950 MB, fora do git), recalcula e regenera docs/
 ```
+As janelas de 12 meses usam sempre os últimos 12 meses fechados disponíveis no ONS; o mês em andamento aparece como parcial.
 `build.py` define os complexos (lista de códigos ONS por usina) e as referências; `tables.py` gera os CSVs do painel.
 
 ## Saídas (`data/processed/`)
@@ -32,4 +34,4 @@ python3 -I scripts/tables.py data/processed/out.json data/processed
 - Ativo dentro de conjunto compartilhado: corte do conjunto rateado pela diferença positiva entre estimada (corrigida pelo viés mensal da usina) e verificada, nas usinas restritas.
 
 ## Painel
-`dashboard/index.html` é a página do painel publicado no Claude (tipo Dashboard), que lê os CSVs acima.
+`dashboard/index.html` é a página do painel (escrita para o tipo Dashboard do Claude). `scripts/build_site.py` envolve essa mesma página com um adaptador mínimo da API do painel e gera o site estático em `docs/`, que lê `docs/data/*.csv`.

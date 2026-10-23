@@ -10,9 +10,25 @@ import numpy as np
 
 o = json.load(open(sys.argv[1]))
 DEST = sys.argv[2]
-LTM = ("2025-10-01", "2026-09-01")
-PREV = ("2024-10-01", "2025-09-01")
-PARTIAL = "2026-10-01"  # ONS file ends 2026-10-21
+MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+
+def mes_label(m):
+    return f"{MESES[int(m[5:7]) - 1]}/{m[2:4]}"
+
+
+def shift(m, k):
+    i = int(m[:4]) * 12 + int(m[5:7]) - 1 + k
+    return f"{i // 12:04d}-{i % 12 + 1:02d}-01"
+
+
+# Windows come from the data: last 12 complete months, and the 12 before them.
+LTM = (o["meta"]["ltm"]["ini"], o["meta"]["ltm"]["fim"])
+PREV = (shift(LTM[0], -12), shift(LTM[1], -12))
+PARTIAL = o["meta"]["ltm"]["parcial"]  # month still being published by ONS, "" if none
+JANELA = f"{mes_label(LTM[0])}–{mes_label(LTM[1])}"
+ULTIMO = o["meta"]["ultimo_instante"]
+DADOS_ATE = f"{ULTIMO[8:10]}/{mes_label(ULTIMO)}"
 
 NOMES = {"EOL_SIN": "Eólica · SIN", "EOL_NE": "Eólica · Nordeste", "UFV_SIN": "Solar · SIN",
          "UFV_SE": "Solar · Sudeste/C-Oeste", "NE_ALL": "Nordeste · eólica + solar",
@@ -65,7 +81,8 @@ for g, (nome, tipo, s) in groups.items():
     m12 = [x for x in serie if x["grupo"] == g and LTM[0][:7] <= x["mes"] <= LTM[1][:7]]
     slope = float(np.polyfit(range(len(m12)), [x["pct_cortado"] for x in m12], 1)[0]) if len(m12) >= 6 else None
     resumo.append(dict(
-        grupo=g, nome=nome, tipo=tipo, controladora=PAI.get(g, ""), janela="out/25–set/26", meses=w["meses"],
+        grupo=g, nome=nome, tipo=tipo, controladora=PAI.get(g, ""), janela=JANELA, ultimo_mes=mes_label(LTM[1]),
+        dados_ate=DADOS_ATE, meses=w["meses"],
         potencial_gwh=r1(w["pot"] / 1e3, 1), cortado_gwh=r1(w["cut"] / 1e3, 1),
         pct_12m=r1(100 * w["cut"] / w["pot"]), pct_ene=r1(100 * w["ene"] / w["pot"]),
         pct_cnf=r1(100 * w["cnf"] / w["pot"]), pct_rel=r1(100 * w["rel"] / w["pot"]),
@@ -73,7 +90,7 @@ for g, (nome, tipo, s) in groups.items():
         pct_12m_anterior=r1(100 * p["cut"] / p["pot"]) if p else None,
         delta_pp=r1(100 * w["cut"] / w["pot"] - 100 * p["cut"] / p["pot"]) if p else None,
         tendencia_pp_mes=r1(slope),
-        pct_set26=next(x["pct_cortado"] for x in serie if x["grupo"] == g and x["mes"] == "2026-09")))
+        pct_ultimo_mes=next(x["pct_cortado"] for x in serie if x["grupo"] == g and x["mes"] == LTM[1][:7])))
 
 by = {r["grupo"]: r for r in resumo}
 pares = []

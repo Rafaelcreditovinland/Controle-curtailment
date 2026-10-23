@@ -114,6 +114,12 @@ for key, cx in COMPLEXES.items():
                                         min(din_instante)::date::varchar, max(din_instante)::date::varchar
                                         from d where id_ons in ({ids}) group by all order by 2, 6""").fetchall()]
 
+# Last complete month: the month of the last half-hour counts only if that half-hour is 23:30 of its last day.
+last = c.sql("select max(din_instante) from t").fetchall()[0][0]
+partial = (last + __import__("datetime").timedelta(minutes=30)).month == last.month
+fim = c.sql(f"select (date_trunc('month', timestamp '{last}') - interval {1 if partial else 0} month)::date").fetchall()[0][0]
+ini = c.sql(f"select (date '{fim}' - interval 11 month)::date").fetchall()[0][0]
+
 excl = {cj for cx in out["complexos"].values() for cj in cx["conjuntos"]}
 excl_sql = ",".join(f"'{e}'" for e in excl)
 
@@ -131,17 +137,18 @@ for k, w in BENCH.items():
     out["bench"][k] = [dict(mes=str(r[0]), ger=r[1], ene=r[2] or 0, cnf=r[3] or 0, rel=r[4] or 0, par=r[5] or 0, n=r[6], loc=r[7] or 0)
                        for r in rows]
 
-# Peer distribution: LTM (Oct-25..Sep-26) % cut per conjunto/usina of same fonte+subsistema.
+# Peer distribution: last-12-complete-months % cut per conjunto/usina of same fonte+subsistema.
 for k, (f, s) in {"EOL_NE": ("EOL", "NE"), "UFV_SE": ("UFV", "SE")}.items():
     rows = c.sql(f"""select id_ons, any_value(nom_usina), any_value(id_estado),
         sum(val_geracao)/2 ger, sum(cut)/2 cut, sum(cut*(cod_razaorestricao='ENE')::int)/2 ene
-        from tc where fonte='{f}' and id_subsistema='{s}' and mes between '2025-10-01' and '2026-09-01'
+        from tc where fonte='{f}' and id_subsistema='{s}' and mes between '{ini}' and '{fim}'
         group by 1 having sum(val_geracao)/2 > 50000 order by 1""").fetchall()
     out["peers"][k] = [dict(id=r[0], nome=r[1], uf=r[2], ger=r[3], cut=r[4], ene=r[5]) for r in rows]
 
 out["meta"] = dict(
     outliers=dict(meias_horas=outl[0], gwh=outl[1]),
-    ultimo_instante=str(c.sql("select max(din_instante) from t").fetchall()[0][0]),
+    ultimo_instante=str(last),
+    ltm=dict(ini=str(ini), fim=str(fim), parcial=str(last.date().replace(day=1)) if partial else ""),
     inicio=dict(EOL=str(c.sql("select min(mes) from tc where fonte='EOL'").fetchall()[0][0]),
                 UFV=str(c.sql("select min(mes) from tc where fonte='UFV'").fetchall()[0][0])),
     excluidos_bench=sorted(excl),

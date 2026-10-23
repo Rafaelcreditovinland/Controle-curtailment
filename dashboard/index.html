@@ -8,7 +8,7 @@
   .cx-tab { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--cds-pad-sm) var(--cds-pad-md); font: inherit; color: var(--color-fg-muted); cursor: pointer; margin-bottom: -1px; }
   .cx-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
   .cx-tab:focus-visible, .cx-seg button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
-  .cx-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+  .cx-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); }
   .cx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
   .cx-card h3 { margin: 0; font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
   .cx-note { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.45; }
@@ -64,11 +64,8 @@
 <div class="cx">
   <header class="cx-head">
     <h1 class="cx-title" id="topo">Curtailment dos ativos com debêntures</h1>
-    <p class="cx-lede" id="takeaway">
-      Nos 12 meses até set/26, a Tupi perdeu <span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=tupi">—</span> da geração potencial e Luiz Carlos <span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=luizcarlos">—</span>, acima das médias da eólica do Nordeste (<span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=EOL_NE">—</span>) e da solar do Sudeste/C-Oeste (<span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=UFV_SE">—</span>).
-      Assuruá 4 e 5 (<span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=assurua">—</span>), Serra do Seridó (<span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=serido">—</span>) e Oeste Seridó (<span data-source="resumo_12m" data-field="pct_12m" data-where="grupo=mirante">—</span>) ficaram abaixo da eólica do Nordeste.
-    </p>
-    <p class="cx-sub">Constrained-off apurado pelo ONS (razão energética, confiabilidade elétrica e indisponibilidade externa). Dados até 21/out/26; outubro está incompleto e fica fora das janelas de 12 meses.</p>
+    <p class="cx-lede" id="takeaway">Carregando…</p>
+    <p class="cx-sub">Constrained-off apurado pelo ONS (razão energética, confiabilidade elétrica e indisponibilidade externa). Janela de 12 meses: <span data-source="resumo_12m" data-field="janela" data-where="grupo=EOL_NE">—</span>. Dados até <span data-source="resumo_12m" data-field="dados_ate" data-where="grupo=EOL_NE">—</span>; o mês em andamento é parcial e fica fora das janelas de 12 meses.</p>
   </header>
 
   <nav class="cx-tabs" role="tablist" aria-label="Seções">
@@ -90,9 +87,9 @@
         <span class="cx-chip">Serena · eólica · Nordeste (BA) · 12 SPEs</span>
         <div class="cx-row">
           <span class="cx-big" data-source="resumo_12m" data-field="pct_12m" data-where="grupo=assurua">—</span>
-          <span class="cx-note">cortado em 12 meses (out/25–set/26)</span>
+          <span class="cx-note">cortado em 12 meses (<span data-source="resumo_12m" data-field="janela" data-where="grupo=assurua">—</span>)</span>
         </div>
-        <p class="cx-note">12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=assurua">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=assurua">—</span>)</p>
+        <p class="cx-note" data-prev>12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=assurua">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=assurua">—</span>)</p>
         <div class="cx-stack" data-source="resumo_12m" data-stack></div>
         <div class="cx-legend">
           <span><i style="background: var(--k-ene)"></i>Energética <b data-source="resumo_12m" data-field="pct_ene" data-where="grupo=assurua">—</b></span>
@@ -107,7 +104,7 @@
           <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=assurua">—</dd>
           <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=assurua">—</dd>
           <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=assurua">—</dd>
-          <dt>Setembro/26</dt><dd data-source="resumo_12m" data-field="pct_set26" data-where="grupo=assurua">—</dd>
+          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=assurua">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=assurua">—</dd>
         </dl>
       </article>
 
@@ -119,9 +116,9 @@
         <span class="cx-chip">Atlas · solar · Sudeste/C-Oeste (MG) · 9 SPEs (Boa Sorte 9–17)</span>
         <div class="cx-row">
           <span class="cx-big" data-source="resumo_12m" data-field="pct_12m" data-where="grupo=luizcarlos">—</span>
-          <span class="cx-note">cortado em 12 meses (out/25–set/26)</span>
+          <span class="cx-note">cortado em 12 meses (<span data-source="resumo_12m" data-field="janela" data-where="grupo=luizcarlos">—</span>)</span>
         </div>
-        <p class="cx-note">Entrou em operação em out/25: ainda sem janela anterior para comparar.</p>
+        <p class="cx-note" data-prev>12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=luizcarlos">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=luizcarlos">—</span>)</p>
         <div class="cx-stack" data-source="resumo_12m" data-stack></div>
         <div class="cx-legend">
           <span><i style="background: var(--k-ene)"></i>Energética <b data-source="resumo_12m" data-field="pct_ene" data-where="grupo=luizcarlos">—</b></span>
@@ -136,7 +133,7 @@
           <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=luizcarlos">—</dd>
           <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=luizcarlos">—</dd>
           <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=luizcarlos">—</dd>
-          <dt>Setembro/26</dt><dd data-source="resumo_12m" data-field="pct_set26" data-where="grupo=luizcarlos">—</dd>
+          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=luizcarlos">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=luizcarlos">—</dd>
         </dl>
       </article>
 
@@ -148,9 +145,9 @@
         <span class="cx-chip">EDF · eólica · Nordeste (PB) · 6 SPEs (X, XI, XII, XIV, XVI, XVII)</span>
         <div class="cx-row">
           <span class="cx-big" data-source="resumo_12m" data-field="pct_12m" data-where="grupo=serido">—</span>
-          <span class="cx-note">cortado em 12 meses (out/25–set/26)</span>
+          <span class="cx-note">cortado em 12 meses (<span data-source="resumo_12m" data-field="janela" data-where="grupo=serido">—</span>)</span>
         </div>
-        <p class="cx-note">12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=serido">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=serido">—</span>)</p>
+        <p class="cx-note" data-prev>12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=serido">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=serido">—</span>)</p>
         <div class="cx-stack" data-source="resumo_12m" data-stack></div>
         <div class="cx-legend">
           <span><i style="background: var(--k-ene)"></i>Energética <b data-source="resumo_12m" data-field="pct_ene" data-where="grupo=serido">—</b></span>
@@ -165,7 +162,7 @@
           <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=serido">—</dd>
           <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=serido">—</dd>
           <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=serido">—</dd>
-          <dt>Setembro/26</dt><dd data-source="resumo_12m" data-field="pct_set26" data-where="grupo=serido">—</dd>
+          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=serido">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=serido">—</dd>
         </dl>
       </article>
 
@@ -177,9 +174,9 @@
         <span class="cx-chip">Elera · eólica · Nordeste (RN) · 10 usinas</span>
         <div class="cx-row">
           <span class="cx-big" data-source="resumo_12m" data-field="pct_12m" data-where="grupo=mirante">—</span>
-          <span class="cx-note">cortado em 12 meses (out/25–set/26)</span>
+          <span class="cx-note">cortado em 12 meses (<span data-source="resumo_12m" data-field="janela" data-where="grupo=mirante">—</span>)</span>
         </div>
-        <p class="cx-note">12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=mirante">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=mirante">—</span>)</p>
+        <p class="cx-note" data-prev>12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=mirante">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=mirante">—</span>)</p>
         <div class="cx-stack" data-source="resumo_12m" data-stack></div>
         <div class="cx-legend">
           <span><i style="background: var(--k-ene)"></i>Energética <b data-source="resumo_12m" data-field="pct_ene" data-where="grupo=mirante">—</b></span>
@@ -194,7 +191,7 @@
           <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=mirante">—</dd>
           <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=mirante">—</dd>
           <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=mirante">—</dd>
-          <dt>Setembro/26</dt><dd data-source="resumo_12m" data-field="pct_set26" data-where="grupo=mirante">—</dd>
+          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=mirante">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=mirante">—</dd>
         </dl>
       </article>
 
@@ -206,9 +203,9 @@
         <span class="cx-chip">Ibitu · eólica · Nordeste (CE/RN) · 4 complexos, 13 usinas</span>
         <div class="cx-row">
           <span class="cx-big" data-source="resumo_12m" data-field="pct_12m" data-where="grupo=tupi">—</span>
-          <span class="cx-note">cortado em 12 meses (out/25–set/26)</span>
+          <span class="cx-note">cortado em 12 meses (<span data-source="resumo_12m" data-field="janela" data-where="grupo=tupi">—</span>)</span>
         </div>
-        <p class="cx-note">12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=tupi">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=tupi">—</span>)</p>
+        <p class="cx-note" data-prev>12 meses anteriores: <span data-source="resumo_12m" data-field="pct_12m_anterior" data-where="grupo=tupi">—</span> (<span data-source="resumo_12m" data-field="delta_pp" data-where="grupo=tupi">—</span>)</p>
         <div class="cx-stack" data-source="resumo_12m" data-stack></div>
         <div class="cx-legend">
           <span><i style="background: var(--k-ene)"></i>Energética <b data-source="resumo_12m" data-field="pct_ene" data-where="grupo=tupi">—</b></span>
@@ -223,13 +220,13 @@
           <dt>Origem local</dt><dd data-source="resumo_12m" data-field="pct_local" data-where="grupo=tupi">—</dd>
           <dt>Percentil entre pares</dt><dd data-source="resumo_12m" data-field="percentil_pares" data-where="grupo=tupi">—</dd>
           <dt>Tendência 12m</dt><dd data-source="resumo_12m" data-field="tendencia_pp_mes" data-where="grupo=tupi">—</dd>
-          <dt>Setembro/26</dt><dd data-source="resumo_12m" data-field="pct_set26" data-where="grupo=tupi">—</dd>
+          <dt>Último mês fechado (<span data-source="resumo_12m" data-field="ultimo_mes" data-where="grupo=tupi">—</span>)</dt><dd data-source="resumo_12m" data-field="pct_ultimo_mes" data-where="grupo=tupi">—</dd>
         </dl>
       </article>
     </div>
 
     <article class="cx-card" id="tupi-abertura">
-      <h3>Abertura por complexo, 12 meses até set/26</h3>
+      <h3>Abertura por complexo, últimos 12 meses fechados</h3>
       <p class="cx-note">Empresas com mais de um complexo: consolidado e cada complexo. Icaraí e Amontada (Tupi) estão no mesmo conjunto ONS; a parte de cada um é rateada por usina (ver Método).</p>
       <div class="cx-tablewrap">
         <table class="cx-table" id="tbl-tupi" data-source="resumo_12m" data-row-key="grupo">
@@ -244,7 +241,7 @@
             <th data-field="pct_local">Origem local</th>
             <th data-field="pct_12m_anterior">12m anterior</th>
             <th data-field="delta_pp">Δ p.p.</th>
-            <th data-field="pct_set26">Set/26</th>
+            <th data-field="pct_ultimo_mes">Último mês</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -252,7 +249,7 @@
     </article>
 
     <article class="cx-card" id="ativo-vs-sistema">
-      <h3>Ativo × sistema, 12 meses até set/26</h3>
+      <h3>Ativo × sistema, últimos 12 meses fechados</h3>
       <p class="cx-note">% cortado do complexo contra a média ponderada da fonte no SIN, da fonte no submercado e do submercado inteiro (eólica + solar). As referências excluem o conjunto ONS onde o ativo está. Diferença positiva (vermelho) indica corte acima do sistema; correlação alta com a fonte no submercado indica que o corte acompanha o sistema.</p>
       <div class="cx-tablewrap">
         <table class="cx-table" id="tbl-spread" data-source="resumo_12m" data-row-key="grupo">
@@ -275,7 +272,7 @@
     </article>
 
     <article class="cx-card" id="motivos-ref">
-      <h3>Referências por motivo, 12 meses até set/26</h3>
+      <h3>Referências por motivo, últimos 12 meses fechados</h3>
       <p class="cx-note">Composição do corte no sistema, para comparar com o mix de cada complexo acima.</p>
       <div class="cx-tablewrap">
         <table class="cx-table" id="tbl-ref" data-source="resumo_12m" data-row-key="grupo">
@@ -307,7 +304,7 @@
     </div>
     <article class="cx-card" id="chart-mensal-card">
       <h3>% da geração potencial cortada, por mês e motivo</h3>
-      <p class="cx-note">Barras: complexo, empilhado por motivo. Linha cheia: mesma fonte no submercado. Tracejada: fonte no SIN. Out/26 é parcial (até dia 21).</p>
+      <p class="cx-note">Barras: complexo, empilhado por motivo. Linha cheia: mesma fonte no submercado. Tracejada: fonte no SIN. O mês em andamento aparece mais claro (parcial).</p>
       <div class="cx-legend" id="leg-mensal"></div>
       <div class="cx-chart" id="chart-mensal" data-source="serie_mensal"></div>
     </article>
@@ -342,12 +339,12 @@
   <section class="cx-section" id="pares" data-panel="pares" hidden>
     <article class="cx-card" id="pares-eol">
       <h3>Eólicas do Nordeste: % cortado em 12 meses</h3>
-      <p class="cx-note">Cada ponto é uma usina ou conjunto do ONS com mais de 50 GWh gerados entre out/25 e set/26. Destaques: os ativos da carteira; empresas com vários complexos aparecem só consolidadas.</p>
+      <p class="cx-note">Cada ponto é uma usina ou conjunto do ONS com mais de 50 GWh gerados nos últimos 12 meses fechados. Destaques: os ativos da carteira; empresas com vários complexos aparecem só consolidadas.</p>
       <div class="cx-chart short" id="chart-pares-eol" data-source="pares_12m"></div>
     </article>
     <article class="cx-card" id="pares-ufv">
       <h3>Solares do Sudeste/C-Oeste: % cortado em 12 meses</h3>
-      <p class="cx-note">Mesmo critério. Luiz Carlos tem 11 meses de operação comercial dentro da janela.</p>
+      <p class="cx-note">Mesmo critério.</p>
       <div class="cx-chart short" id="chart-pares-ufv" data-source="pares_12m"></div>
     </article>
   </section>
@@ -392,10 +389,10 @@
     <article class="cx-card cx-method">
       <h3>Fontes</h3>
       <ul>
-        <li>ONS Dados Abertos, <a href="https://dados.ons.org.br/dataset/restricao_coff_eolica_usi" target="_blank" rel="noopener">Restrição de Operação por Constrained-off de Usinas Eólicas</a>: arquivos mensais <code>RESTRICAO_COFF_EOLICA_AAAA_MM.parquet</code>, out/21 a out/26.</li>
-        <li>ONS Dados Abertos, <a href="https://dados.ons.org.br/dataset/restricao_coff_fotovoltaica" target="_blank" rel="noopener">Restrição de Operação por Constrained-off de Usinas Fotovoltaicas</a>: <code>RESTRICAO_COFF_FOTOVOLTAICA_AAAA_MM.parquet</code>, abr/24 a out/26 (o ONS só publica solar a partir de abr/24).</li>
+        <li>ONS Dados Abertos, <a href="https://dados.ons.org.br/dataset/restricao_coff_eolica_usi" target="_blank" rel="noopener">Restrição de Operação por Constrained-off de Usinas Eólicas</a>: arquivos mensais <code>RESTRICAO_COFF_EOLICA_AAAA_MM.parquet</code>, desde out/21.</li>
+        <li>ONS Dados Abertos, <a href="https://dados.ons.org.br/dataset/restricao_coff_fotovoltaica" target="_blank" rel="noopener">Restrição de Operação por Constrained-off de Usinas Fotovoltaicas</a>: <code>RESTRICAO_COFF_FOTOVOLTAICA_AAAA_MM.parquet</code>, desde abr/24 (o ONS só publica solar a partir daí).</li>
         <li>ONS Dados Abertos, detalhamento por usina: <a href="https://dados.ons.org.br/dataset/restricao_coff_eolica_detail" target="_blank" rel="noopener">eólicas</a> e <a href="https://dados.ons.org.br/dataset/restricao_coff_fotovoltaica_detail" target="_blank" rel="noopener">fotovoltaicas</a> (<code>…_DETAIL_AAAA_MM.parquet</code>), usado para mapear as SPEs e separar a parte do ativo dentro de conjuntos compartilhados.</li>
-        <li>Todos baixados de <code>ons-aws-prod-opendata.s3.amazonaws.com/dataset/…</code> em 23/out/26. Cada número do painel aponta para o arquivo de cálculo em Fontes, ao lado.</li>
+        <li>Todos baixados de <code>ons-aws-prod-opendata.s3.amazonaws.com/dataset/…</code> a cada atualização (data no cabeçalho). Os números vêm dos arquivos de cálculo em <code>data/processed</code> do <a href="https://github.com/Rafaelcreditovinland/Controle-curtailment" target="_blank" rel="noopener">repositório</a>.</li>
       </ul>
       <h3>Definições</h3>
       <ul>
@@ -433,7 +430,7 @@
   const toDate = (m) => new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 1, 1));
 
   const FMT = {
-    pct_12m: pct, pct_12m_anterior: pct, pct_ene: pct, pct_cnf: pct, pct_rel: pct, pct_local: pct, pct_set26: pct,
+    pct_12m: pct, pct_12m_anterior: pct, pct_ene: pct, pct_cnf: pct, pct_rel: pct, pct_local: pct, pct_ultimo_mes: pct,
     pct_ref_fonte_sub: pct, pct_ref_fonte_sin: pct, pct_ref_sub: pct,
     delta_pp: pp, spread_fonte_sub_pp: pp, spread_fonte_sin_pp: pp, spread_sub_pp: pp,
     cortado_gwh: (v) => nf1.format(v) + ' GWh', potencial_gwh: (v) => nf0.format(v) + ' GWh',
@@ -518,17 +515,50 @@
     g.select('.domain').remove();
   }
 
+  const TEXT = new Set(['janela', 'ultimo_mes', 'dados_ate']);
+
+  // Headline: every top-level asset against its own source in its submarket, worst first.
+  function drawTakeaway(R, by) {
+    const el = document.getElementById('takeaway');
+    const top = R.filter((r) => r.tipo === 'complexo' && !r.controladora && num(r.pct_12m) != null)
+      .sort((a, b) => num(b.spread_fonte_sub_pp) - num(a.spread_fonte_sub_pp));
+    const mark = (g, f) => {
+      const s = document.createElement('span');
+      s.dataset.source = 'resumo_12m'; s.dataset.field = f; s.dataset.where = 'grupo=' + g;
+      s.textContent = (FMT[f] || ((v) => v))(TEXT.has(f) ? by[g][f] : num(by[g][f]));
+      return s;
+    };
+    const list = (rows) => rows.flatMap((r, i) => [
+      i ? document.createTextNode(i === rows.length - 1 ? ' e ' : ', ') : document.createTextNode(''),
+      document.createTextNode(short(r.nome) + ' ('), mark(r.grupo, 'pct_12m'), document.createTextNode(')')]);
+    const up = top.filter((r) => num(r.spread_fonte_sub_pp) > 0), down = top.filter((r) => num(r.spread_fonte_sub_pp) <= 0);
+    const parts = [document.createTextNode('Nos 12 meses até '), mark('EOL_NE', 'ultimo_mes'), document.createTextNode(', a média foi de ')
+      , mark('EOL_NE', 'pct_12m'), document.createTextNode(' de corte na eólica do Nordeste e '), mark('UFV_SE', 'pct_12m'),
+      document.createTextNode(' na solar do Sudeste/C-Oeste. ')];
+    if (up.length) parts.push(document.createTextNode('Acima da própria fonte no submercado: '), ...list(up), document.createTextNode('. '));
+    if (down.length) parts.push(document.createTextNode('Abaixo: '), ...list(down), document.createTextNode('.'));
+    el.replaceChildren(...parts);
+  }
+
   // ---------- overview ----------
   function drawOverview(R) {
     const by = Object.fromEntries(R.map((r) => [r.grupo, r]));
-    document.querySelectorAll('#geral [data-source="resumo_12m"][data-field], #takeaway [data-field]').forEach((el) => {
+    drawTakeaway(R, by);
+    document.querySelectorAll('#geral [data-source="resumo_12m"][data-field], .cx-head [data-field]').forEach((el) => {
       const g = new URLSearchParams(el.dataset.where).get('grupo');
+      if (TEXT.has(el.dataset.field)) { el.textContent = by[g]?.[el.dataset.field] || '—'; return; }
       const v = num(by[g]?.[el.dataset.field]);
       el.textContent = v == null ? '—' : (FMT[el.dataset.field] || nf1.format)(v);
       if (/spread|delta/.test(el.dataset.field) && v != null) el.style.color = v > 0 ? 'var(--color-bad)' : 'var(--color-ok)';
     });
     document.querySelectorAll('#cards .cx-card').forEach((card) => {
       const r = by[card.dataset.g];
+      const prev = card.querySelector('[data-prev]');
+      const has = num(r.pct_12m_anterior) != null;
+      prev.hidden = !has;
+      let none = card.querySelector('[data-noprev]');
+      if (!none) { none = document.createElement('p'); none.className = 'cx-note'; none.dataset.noprev = ''; none.textContent = 'Sem 12 meses anteriores completos para comparar.'; prev.after(none); }
+      none.hidden = has;
       const st = card.querySelector('[data-stack]');
       st.replaceChildren(...['ene', 'cnf', 'rel'].map((k) => {
         const s = document.createElement('span');
@@ -575,7 +605,7 @@
 
   function drawTupi(R) {
     const tb = document.querySelector('#tbl-tupi tbody');
-    const cols = ['nome', 'potencial_gwh', 'cortado_gwh', 'pct_12m', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'pct_set26'];
+    const cols = ['nome', 'potencial_gwh', 'cortado_gwh', 'pct_12m', 'pct_ene', 'pct_cnf', 'pct_rel', 'pct_local', 'pct_12m_anterior', 'delta_pp', 'pct_ultimo_mes'];
     const parents = [...new Set(R.map((r) => r.controladora).filter(Boolean))];
     tb.replaceChildren(...parents.flatMap((p) => [R.find((r) => r.grupo === p), ...R.filter((r) => r.controladora === p)]).filter(Boolean).map((r) => {
       const tr = document.createElement('tr');
@@ -690,7 +720,7 @@
     });
     const tip2 = tipFor(b2);
     const months = [...new Set(all.map((p) => p.mes))].sort();
-    svg2.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r - labW).attr('height', H2 - m.t - m.b).attr('fill', 'transparent')
+    svg2.append('rect').attr('x', m.l).attr('y', m.t).attr('width', Math.max(0, W - m.l - m.r - labW)).attr('height', H2 - m.t - m.b).attr('fill', 'transparent')
       .on('mousemove', (ev) => {
         const [px, py] = d3.pointer(ev, svg2.node());
         const dt = x2.invert(px);
@@ -739,7 +769,11 @@
       const cx = x(d.v);
       svg.append('line').attr('x1', cx).attr('x2', cx).attr('y1', 14 + i * 16).attr('y2', cy + 24).attr('stroke', dash.colors[0]).attr('stroke-width', 1.5);
       svg.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 7).attr('fill', dash.colors[0]).attr('stroke', 'var(--color-panel)').attr('stroke-width', 2);
-      const t = svg.append('text').attr('y', 10 + i * 16).attr('fill', 'var(--color-fg)').style('font-size', 'var(--cds-font-size-caption)').style('font-weight', 500).text(d.nome.split(' (')[0] + ' ' + pct(d.v));
+    });
+    hl.forEach((d, i) => {
+      const cx = x(d.v);
+      const t = svg.append('text').attr('y', 10 + i * 16).attr('fill', 'var(--color-fg)').attr('stroke', 'var(--color-panel)').attr('stroke-width', 4)
+        .attr('paint-order', 'stroke').attr('stroke-linejoin', 'round').style('font-size', 'var(--cds-font-size-caption)').style('font-weight', 500).text(d.nome.split(' (')[0] + ' ' + pct(d.v));
       const tw = t.node().getComputedTextLength();
       t.attr('x', Math.max(m.l, Math.min(W - m.r - tw, cx - tw / 2)));
     });
