@@ -1,16 +1,16 @@
 grupo,nome,tipo,controladora,janela,ultimo_mes,dados_ate,meses,potencial_gwh,cortado_gwh,pct_12m,pct_ene,pct_cnf,pct_rel,pct_local,pct_12m_anterior,delta_pp,tendencia_pp_mes,pct_ultimo_mes,percentil_pares,n_pares,mediana_pares,ref_fonte_sin,pct_ref_fonte_sin,spread_fonte_sin_pp,ref_fonte_sub,pct_ref_fonte_sub,spread_fonte_sub_pp,ref_sub,pct_ref_sub,spread_sub_pp,correl_fonte_sub,meses_correl
-assurua,Assuruá 4 e 5 (Serena),complexo,,out/25–set/26,set/26,22/out/26,12,2082.2,373.2,17.92,11.23,2.41,4.28,0.27,20.62,-2.7,-0.74,10.92,40.0,140,25.85,EOL_SIN,21.59,-3.67,EOL_NE,22.27,-4.35,NE_ALL,23.0,-5.08,0.47,24
-luizcarlos,Luiz Carlos (Atlas),complexo,,out/25–set/26,set/26,22/out/26,12,865.2,250.7,28.98,28.44,0.0,0.54,0.47,,,4.02,58.27,83.0,29,24.87,UFV_SIN,25.69,3.29,UFV_SE,25.02,3.96,SE_ALL,24.16,4.82,0.42,12
-serido,Serra do Seridó (EDF),complexo,,out/25–set/26,set/26,22/out/26,12,1003.3,108.4,10.81,9.34,1.19,0.28,0.08,4.96,5.85,0.35,13.82,4.0,140,25.85,EOL_SIN,21.59,-10.78,EOL_NE,22.27,-11.46,NE_ALL,23.0,-12.19,0.85,24
-mirante,Oeste Seridó / Mirante (Elera),complexo,,out/25–set/26,set/26,22/out/26,12,1339.7,137.2,10.24,8.58,1.44,0.22,0.09,8.06,2.18,-0.24,10.01,4.0,140,25.85,EOL_SIN,21.59,-11.35,EOL_NE,22.27,-12.03,NE_ALL,23.0,-12.76,0.82,24
-icarai,Icaraí (Tupi),complexo,tupi,out/25–set/26,set/26,22/out/26,12,261.4,75.6,28.92,22.66,5.35,0.91,0.13,28.93,-0.01,-0.53,28.78,61.0,140,25.85,EOL_SIN,21.59,7.33,EOL_NE,22.27,6.65,NE_ALL,23.0,5.92,0.42,24
-taiba,Taíba (Tupi),complexo,tupi,out/25–set/26,set/26,22/out/26,12,212.1,58.2,27.45,21.01,5.51,0.93,0.17,24.54,2.91,-0.81,23.71,56.0,140,25.85,EOL_SIN,21.59,5.86,EOL_NE,22.27,5.18,NE_ALL,23.0,4.45,0.61,24
-amontada,Amontada (Tupi),complexo,tupi,out/25–set/26,set/26,22/out/26,12,205.7,79.5,38.67,29.46,8.13,1.08,0.18,32.45,6.22,-1.83,31.1,76.0,140,25.85,EOL_SIN,21.59,17.08,EOL_NE,22.27,16.4,NE_ALL,23.0,15.67,0.63,24
-riachao,Riachão (Tupi),complexo,tupi,out/25–set/26,set/26,22/out/26,12,426.2,158.6,37.21,24.0,12.82,0.39,7.96,28.31,8.9,0.87,48.67,75.0,140,25.85,EOL_SIN,21.59,15.62,EOL_NE,22.27,14.94,NE_ALL,23.0,14.21,0.77,24
-tupi,Tupi consolidado (Ibitu),complexo,,out/25–set/26,set/26,22/out/26,12,1105.4,372.0,33.65,24.13,8.77,0.74,3.17,28.43,5.22,-0.34,35.03,74.0,140,25.85,EOL_SIN,21.59,12.06,EOL_NE,22.27,11.38,NE_ALL,23.0,10.65,0.8,24
-EOL_SIN,Eólica · SIN,referencia,,out/25–set/26,set/26,22/out/26,12,127387.0,27504.4,21.59,12.53,7.03,2.04,5.26,15.14,6.45,0.13,25.6,,,,,,,,,,,,,,
-EOL_NE,Eólica · Nordeste,referencia,,out/25–set/26,set/26,22/out/26,12,117890.8,26253.2,22.27,12.93,7.58,1.75,5.24,15.92,6.35,-0.06,24.61,,,,,,,,,,,,,,
-UFV_SIN,Solar · SIN,referencia,,out/25–set/26,set/26,22/out/26,12,47734.7,12261.1,25.69,20.9,2.85,1.94,1.77,23.1,2.59,0.86,33.12,,,,,,,,,,,,,,
-UFV_SE,Solar · Sudeste/C-Oeste,referencia,,out/25–set/26,set/26,22/out/26,12,21074.2,5272.7,25.02,21.41,1.4,2.2,1.66,24.14,0.88,0.92,32.37,,,,,,,,,,,,,,
-NE_ALL,Nordeste · eólica + solar,referencia,,out/25–set/26,set/26,22/out/26,12,144551.3,33241.6,23.0,14.33,6.92,1.75,4.62,16.88,6.11,0.1,26.27,,,,,,,,,,,,,,
-SE_ALL,Sudeste/C-Oeste · eólica + solar,referencia,,out/25–set/26,set/26,22/out/26,12,22136.9,5348.6,24.16,20.68,1.35,2.14,1.59,23.76,0.4,0.9,31.3,,,,,,,,,,,,,,
+assurua,Assuruá 4 e 5 (Serena),complexo,,nov/25–out/26,out/26,08/nov/26,12,2016.6,329.4,16.33,10.76,1.37,4.2,0.19,22.37,-6.03,-0.72,8.9,37.0,140,23.59,EOL_SIN,20.58,-4.25,EOL_NE,20.92,-4.59,NE_ALL,21.84,-5.51,0.41,24
+luizcarlos,Luiz Carlos (Atlas),complexo,,nov/25–out/26,out/26,08/nov/26,12,953.3,299.0,31.36,30.85,0.0,0.51,0.43,0.0,31.36,3.96,53.53,86.0,29,25.34,UFV_SIN,25.39,5.97,UFV_SE,24.94,6.42,SE_ALL,24.12,7.24,0.45,13
+serido,Serra do Seridó (EDF),complexo,,nov/25–out/26,out/26,08/nov/26,12,957.2,109.0,11.38,10.22,0.86,0.31,0.1,5.78,5.6,0.66,17.64,11.0,140,23.59,EOL_SIN,20.58,-9.2,EOL_NE,20.92,-9.54,NE_ALL,21.84,-10.46,0.79,24
+mirante,Oeste Seridó / Mirante (Elera),complexo,,nov/25–out/26,out/26,08/nov/26,12,1304.4,127.2,9.75,8.56,0.97,0.22,0.09,9.17,0.58,0.04,11.02,4.0,140,23.59,EOL_SIN,20.58,-10.83,EOL_NE,20.92,-11.17,NE_ALL,21.84,-12.09,0.81,24
+icarai,Icaraí (Tupi),complexo,tupi,nov/25–out/26,out/26,08/nov/26,12,256.9,73.8,28.73,24.57,3.44,0.71,0.15,31.63,-2.91,-0.11,33.27,69.0,140,23.59,EOL_SIN,20.58,8.15,EOL_NE,20.92,7.81,NE_ALL,21.84,6.89,0.39,24
+taiba,Taíba (Tupi),complexo,tupi,nov/25–out/26,out/26,08/nov/26,12,211.0,54.1,25.66,21.52,3.37,0.77,0.18,28.02,-2.36,-0.55,22.99,56.0,140,23.59,EOL_SIN,20.58,5.08,EOL_NE,20.92,4.74,NE_ALL,21.84,3.82,0.57,24
+amontada,Amontada (Tupi),complexo,tupi,nov/25–out/26,out/26,08/nov/26,12,191.7,69.8,36.41,30.21,5.29,0.91,0.19,38.67,-2.26,-1.0,40.44,76.0,140,23.59,EOL_SIN,20.58,15.83,EOL_NE,20.92,15.49,NE_ALL,21.84,14.57,0.6,24
+riachao,Riachão (Tupi),complexo,tupi,nov/25–out/26,out/26,08/nov/26,12,409.4,148.1,36.18,25.21,10.55,0.42,7.6,32.15,4.03,1.8,42.67,76.0,140,23.59,EOL_SIN,20.58,15.6,EOL_NE,20.92,15.26,NE_ALL,21.84,14.34,0.75,24
+tupi,Tupi consolidado (Ibitu),complexo,,nov/25–out/26,out/26,08/nov/26,12,1069.1,345.9,32.36,25.23,6.48,0.65,3.02,32.37,-0.01,0.31,35.37,73.0,140,23.59,EOL_SIN,20.58,11.78,EOL_NE,20.92,11.44,NE_ALL,21.84,10.52,0.8,24
+EOL_SIN,Eólica · SIN,referencia,,nov/25–out/26,out/26,08/nov/26,12,123589.9,25436.3,20.58,12.57,5.64,2.37,5.19,17.38,3.2,0.67,22.2,,,,,,,,,,,,,,
+EOL_NE,Eólica · Nordeste,referencia,,nov/25–out/26,out/26,08/nov/26,12,114303.6,23910.5,20.92,12.98,6.09,1.85,4.91,18.27,2.65,0.44,20.66,,,,,,,,,,,,,,
+UFV_SIN,Solar · SIN,referencia,,nov/25–out/26,out/26,08/nov/26,12,48394.1,12285.1,25.39,21.55,2.0,1.84,1.43,24.81,0.57,1.34,28.63,,,,,,,,,,,,,,
+UFV_SE,Solar · Sudeste/C-Oeste,referencia,,nov/25–out/26,out/26,08/nov/26,12,21196.6,5286.4,24.94,22.25,0.79,1.9,0.98,25.58,-0.64,1.36,29.18,,,,,,,,,,,,,,
+NE_ALL,Nordeste · eólica + solar,referencia,,nov/25–out/26,out/26,08/nov/26,12,141501.1,30909.2,21.84,14.52,5.48,1.84,4.31,19.16,2.68,0.6,22.24,,,,,,,,,,,,,,
+SE_ALL,Sudeste/C-Oeste · eólica + solar,referencia,,nov/25–out/26,out/26,08/nov/26,12,22219.7,5358.5,24.12,21.51,0.76,1.85,0.94,25.07,-0.96,1.31,28.23,,,,,,,,,,,,,,
